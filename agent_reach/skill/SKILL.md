@@ -27,6 +27,19 @@ Run `agent-reach doctor` to check which channels are available.
 
 **Never create files in the agent workspace.** Use `/tmp/` for temporary output and `~/.agent-reach/` for persistent data.
 
+## Instagram (instaloader)
+
+```bash
+instaloader -- -shortcode URL_SHORTCODE      # download post
+instaloader profile USERNAME                 # download profile
+```
+
+## Pinterest (pinterest-dl)
+
+```bash
+pinterest-dl URL                             # download pin
+```
+
 ## Web — Any URL
 
 ```bash

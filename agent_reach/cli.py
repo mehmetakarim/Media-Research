@@ -925,6 +925,7 @@ def _detect_environment():
 
 def _cmd_configure(args):
     """Set a config value and test it, or auto-extract from browser."""
+    import os
     import shutil
     from agent_reach.config import Config
 
