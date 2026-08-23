@@ -1,33 +1,32 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-// Tauri invoke — masaüstü uygulamasında gerçek komutları çağırır,
-// tarayıcı önizlemesinde (localhost dev) sahte (mock) veri döndürür.
-let invoke;
-try {
-  invoke = (await import('@tauri-apps/api/core')).invoke;
-} catch {
-  // Tauri bağlamı yok (tarayıcı önizlemesi) — geliştirme modu mock
-  invoke = async (cmd, args) => {
-    console.warn(`[DEV MOCK] Tauri invoke: ${cmd}`, args);
-    // Animasyonu görmek için yapay gecikme
-    await new Promise(r => setTimeout(r, 3000));
-    if (cmd === 'execute_search') {
-      return {
-        success: true,
-        platform: args?.platform || 'all',
-        raw_output: JSON.stringify([
-          {
-            id: 'mock-1', platform: 'x', text: '🔴 Bu bir geliştirme modu önizlemesidir. Gerçek veriler için Tauri masaüstü uygulamasını çalıştırın.',
-            author: 'Media Research Dev', handle: '@mediaresearch', date: new Date().toLocaleDateString('tr-TR'),
-            url: '#', metrics: [{ label: 'Beğeni', value: '42' }, { label: 'Yorum', value: '7' }]
-          }
-        ])
-      };
-    }
-    if (cmd === 'save_file_to_downloads' || cmd === 'show_in_folder') return { success: true };
-    return { success: false, error: 'DEV MOCK: Bu komut tarayıcıda desteklenmiyor.' };
-  };
-}
+import { invoke as _tauriInvoke } from '@tauri-apps/api/core';
+
+// Tauri bağlam kontrolü — tarayıcı önizlemesinde sahte veri, masaüstünde gerçek
+const isTauri = typeof window !== 'undefined' && window.__TAURI_INTERNALS__ !== undefined;
+
+const invoke = async (cmd, args) => {
+  if (isTauri) return _tauriInvoke(cmd, args);
+  // Geliştirme modu mock (localhost:1420 tarayıcı önizlemesi)
+  console.warn(`[DEV MOCK] invoke: ${cmd}`, args);
+  await new Promise(r => setTimeout(r, 3000));
+  if (cmd === 'execute_search') {
+    return {
+      success: true,
+      platform: args?.platform || 'all',
+      raw_output: JSON.stringify([
+        {
+          id: 'mock-1', platform: 'x',
+          text: '🔴 Dev modu: Gerçek veriler için Tauri masaüstü uygulamasını kullanın.',
+          author: 'Media Research Dev', handle: '@mediaresearch',
+          date: new Date().toLocaleDateString('tr-TR'),
+          url: '#', metrics: [{ label: 'Beğeni', value: '42' }, { label: 'Yorum', value: '7' }]
+        }
+      ])
+    };
+  }
+  return { success: true };
+};
 import {
   Search,
   Link,
