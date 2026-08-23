@@ -1,0 +1,231 @@
+@import "tailwindcss";
+
+:root {
+  --accent: #E2232A;
+  --accent-soft: rgba(226, 35, 42, 0.16);
+  --accent-line: rgba(226, 35, 42, 0.35);
+  --bg-primary: #12141a;
+  --bg-sidebar: #0e1015;
+  --bg-card: #181b22;
+  --bg-card-hover: #1e222b;
+  --border-subtle: #262a35;
+  --border-active: #3a4153;
+  --pad: 16px;
+  --row: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-primary);
+  color: #f1f5f9;
+  font-family: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  color: #fca5a5;
+}
+
+/* Premium Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e3442;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f475a;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Animations */
+@keyframes arPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55); }
+  70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes arShimmer {
+  0% { background-position: -220px 0; }
+  100% { background-position: 320px 0; }
+}
+
+@keyframes arSlide {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes arFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pulse-glow {
+  animation: arPulse 2.2s infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 1.8s infinite linear;
+}
+
+/* ==========================================================================
+   MARKDOWN BODY BEAUTIFIER & TYPOGRAPHY
+   ========================================================================== */
+.markdown-body {
+  color: #cbd5e1;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4 {
+  color: #f8fafc;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.markdown-body h1 {
+  font-size: 1.25rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #262a35;
+  color: #E2232A;
+}
+
+.markdown-body h2 {
+  font-size: 1.1rem;
+  color: #fca5a5;
+}
+
+.markdown-body h3 {
+  font-size: 0.95rem;
+  color: #fecaca;
+}
+
+.markdown-body p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.markdown-body strong {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.4rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.35rem;
+}
+
+.markdown-body hr {
+  border: 0;
+  height: 1px;
+  background: #262a35;
+  margin: 1.5rem 0;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem 0;
+  font-size: 12.5px;
+  background: #14161d;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #262a35;
+}
+
+.markdown-body th {
+  background: #1e222b;
+  color: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid #2e3442;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.markdown-body td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #262a35;
+  color: #cbd5e1;
+}
+
+.markdown-body tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-body tr:hover td {
+  background: #181b22;
+}
+
+.markdown-body blockquote {
+  border-left: 3px solid #E2232A;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #94a3b8;
+  font-style: italic;
+  background: rgba(226, 35, 42, 0.05);
+  border-radius: 0 8px 8px 0;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.markdown-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  background: #1e222b;
+  color: #fca5a5;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #2e3442;
+}
+
+.markdown-body pre {
+  background: #12141a;
+  border: 1px solid #262a35;
+  border-radius: 12px;
+  padding: 14px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.animate-slide {
+  animation: arSlide 0.22s ease both;
+}
+
+.animate-fade {
+  animation: arFade 0.25s ease both;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", monospace !important;
+}

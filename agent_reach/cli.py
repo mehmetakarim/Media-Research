@@ -73,8 +73,9 @@ def main():
     p_conf = sub.add_parser("configure", help="Set a config value or auto-extract from browser")
     p_conf.add_argument("key", nargs="?", default=None,
                         choices=["proxy", "github-token", "groq-key",
-                                 "twitter-cookies", "youtube-cookies",
-                                 "xhs-cookies"],
+                                 "twitter-cookies", "instagram-cookies", "pinterest-cookies",
+                                 "reddit-cookies", "linkedin-cookies", "tiktok-cookies",
+                                 "youtube-cookies", "xhs-cookies"],
                         help="What to configure (omit if using --from-browser)")
     p_conf.add_argument("value", nargs="*", help="The value(s) to set")
     p_conf.add_argument("--from-browser", metavar="BROWSER",
@@ -1062,6 +1063,34 @@ def _cmd_configure(args):
         config.set("youtube_cookies_from", value)
         print(f"✅ YouTube cookie source configured: {value}")
         print("   yt-dlp will use cookies from this browser for age-restricted/member videos.")
+
+    elif args.key in ("instagram-cookies", "instagram"):
+        config.set("instagram_cookies", value)
+        # Try to parse sessionid or save to instaloader dir
+        try:
+            import re
+            session_match = re.search(r'sessionid=([^;]+)', value)
+            if session_match:
+                config.set("instagram_session_id", session_match.group(1))
+            print("✅ Instagram çerezleri başarıyla kaydedildi!")
+        except Exception as e:
+            print(f"✅ Instagram çerezleri kaydedildi ({e})")
+
+    elif args.key in ("pinterest-cookies", "pinterest"):
+        config.set("pinterest_cookies", value)
+        print("✅ Pinterest çerezleri başarıyla kaydedildi!")
+
+    elif args.key in ("reddit-cookies", "reddit"):
+        config.set("reddit_cookies", value)
+        print("✅ Reddit çerezleri başarıyla kaydedildi!")
+
+    elif args.key in ("linkedin-cookies", "linkedin"):
+        config.set("linkedin_cookies", value)
+        print("✅ LinkedIn çerezleri başarıyla kaydedildi!")
+
+    elif args.key in ("tiktok-cookies", "tiktok"):
+        config.set("tiktok_cookies", value)
+        print("✅ TikTok çerezleri başarıyla kaydedildi!")
 
     elif args.key == "xhs-cookies":
         _configure_xhs_cookies(value)

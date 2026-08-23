@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --accent: #6366f1;
+    --accent-soft: rgba(99, 102, 241, 0.14);
+    --accent-line: rgba(99, 102, 241, 0.4);
+    --pad: 16px;
+    --row: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #09090b; }
+  body { font-family: "Instrument Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: #a5b4fc; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 8px; border: 3px solid #09090b; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  @keyframes arPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.55); } 70% { box-shadow: 0 0 0 7px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+  @keyframes arShimmer { 0% { background-position: -220px 0; } 100% { background-position: 320px 0; } }
+  @keyframes arSlide { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes arFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</helmet>
+<div style="display: flex; height: 100vh; width: 100%; overflow: hidden; background: #09090b; color: #fafafa; font-size: 14px;">
+
+  <aside style="width: 236px; flex: 0 0 236px; display: flex; flex-direction: column; background: #0c0c0e; border-right: 1px solid #1f1f23;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 18px 18px 16px;">
+      <div style="width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(140deg, #6366f1, #8b5cf6); display: grid; place-items: center; box-shadow: 0 4px 14px rgba(99,102,241,.35);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>
+      </div>
+      <div style="line-height: 1.1;">
+        <div style="font-weight: 620; letter-spacing: -0.2px;">Agent Reach</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #52525b; margin-top: 3px;">v0.9.2 · tauri</div>
+      </div>
+    </div>
+
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #52525b; padding: 6px 20px 8px;">WORKSPACE</div>
+
+    <nav style="display: flex; flex-direction: column; gap: 2px; padding: 0 10px;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.go }}" style="{{ n.style }}" style-hover="background: #17171a; color: #e4e4e7;">
+          <sc-if value="{{ n.isSearch }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></sc-if>
+          <sc-if value="{{ n.isUrl }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 0 1 0 10h-2"></path><path d="M8 12h8"></path></svg></sc-if>
+          <sc-if value="{{ n.isSaved }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></sc-if>
+          <sc-if value="{{ n.isSettings }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h10"></path><path d="M18 6h2"></path><path d="M4 12h4"></path><path d="M12 12h8"></path><path d="M4 18h9"></path><path d="M17 18h3"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="15" cy="18" r="2"></circle></svg></sc-if>
+          <span style="flex: 1; text-align: left;">{{ n.label }}</span>
+          <sc-if value="{{ n.count }}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #71717a;">{{ n.count }}</span></sc-if>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="flex: 1;"></div>
+
+    <div style="padding: 12px; border-top: 1px solid #1f1f23;">
+      <div style="border: 1px solid #232327; background: #101013; border-radius: 12px; padding: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; animation: arPulse 2.2s infinite;"></span>
+          <span style="font-size: 12px; font-weight: 600; color: #d4d4d8;">Doctor Status</span>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #10b981; margin-top: 8px;">10/18 channels active</div>
+        <div style="display: flex; gap: 3px; margin-top: 10px;">
+          <sc-for list="{{ channelDots }}" as="d" hint-placeholder-count="18">
+            <span style="{{ d.style }}"></span>
+          </sc-for>
+        </div>
+        <button onClick="{{ goSettings }}" style="margin-top: 12px; width: 100%; background: #18181b; border: 1px solid #27272a; color: #a1a1aa; border-radius: 8px; padding: 7px; font-size: 11px; font-family: 'JetBrains Mono', monospace; cursor: pointer;" style-hover="border-color: #3f3f46; color: #e4e4e7;">run doctor</button>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+
+    <header style="border-bottom: 1px solid #1f1f23; background: rgba(12,12,14,.82); backdrop-filter: blur(14px); padding: 12px 18px 0;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 320px; background: #101013; border: 1px solid #26262b; border-radius: 11px; padding: 0 10px 0 12px; height: 40px; overflow: hidden;" style-focus="border-color: var(--accent-line);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2" stroke-linecap="round" style="flex: 0 0 auto;"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input value="{{ query }}" onInput="{{ onQuery }}" placeholder="Search handles, keywords, hashtags or paste a URL…" style="flex: 1 1 60px; min-width: 60px; background: transparent; border: 0; outline: none; color: #fafafa; font-family: inherit; font-size: 13.5px;" />
+          <div style="display: flex; align-items: center; gap: 6px; flex: 0 0 auto; white-space: nowrap;">
+            <sc-for list="{{ filterTags }}" as="t" hint-placeholder-count="2">
+              <span style="display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #a1a1aa; background: #1b1b1f; border: 1px solid #2a2a30; border-radius: 6px; padding: 3px 6px;">{{ t.label }}<span style="color: #52525b;">×</span></span>
+            </sc-for>
+            <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+              <button style="display: flex; align-items: center; gap: 6px; background: #1b1b1f; border: 1px solid #2a2a30; border-radius: 7px; padding: 5px 8px; color: #a1a1aa; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #3f3f46; color: #e4e4e7;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>filters</button>
+            </sc-if>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #52525b; background: #17171a; border: 1px solid #26262b; border-radius: 6px; padding: 4px 7px; white-space: nowrap;">⌘K</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto; white-space: nowrap;">
+          <div style="display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 11px; border-radius: 9px; background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.28); flex: 0 0 auto; white-space: nowrap;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#10b981" stroke="none" style="flex: 0 0 auto;"><path d="M13 2 4.5 13.5H11l-1.5 8.5L20 10h-6.5z"></path></svg>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #34d399; white-space: nowrap;">{{ engineLabel }}</span>
+          </div>
+          <button onClick="{{ toggleAi }}" style="{{ aiToggleStyle }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="flex: 0 0 auto;"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"></path><path d="M18 16l.9 2.1L21 19l-2.1.9L18 22l-.9-2.1L15 19l2.1-.9z"></path></svg>
+            <sc-if value="{{ wide }}"><span style="white-space: nowrap;">AI Summary</span></sc-if>
+            <span style="{{ aiKnobStyle }}"></span>
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 6px; padding: 12px 0 11px; overflow-x: auto;">
+        <sc-for list="{{ platforms }}" as="p" hint-placeholder-count="9">
+          <button onClick="{{ p.pick }}" style="{{ p.style }}">
+            <span style="{{ p.dot }}"></span>{{ p.label }}<span style="{{ p.countStyle }}">{{ p.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </header>
+
+    <div style="flex: 1; min-height: 0; display: flex;">
+
+      <main style="flex: 1; min-width: 380px; overflow: auto; padding: 18px;">
+
+        <sc-if value="{{ isFeed }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px;">
+              <h1 style="margin: 0; font-size: 17px; font-weight: 620; letter-spacing: -0.3px; white-space: nowrap;">{{ feedTitle }}</h1>
+              <sc-if value="{{ showFeedMeta }}" hint-placeholder-val="{{ true }}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ feedMeta }}</span></sc-if>
+              <div style="flex: 1;"></div>
+              <div style="display: flex; gap: 2px; background: #101013; border: 1px solid #26262b; border-radius: 9px; padding: 3px;">
+                <button onClick="{{ setGrid }}" style="{{ gridBtn }}">grid</button>
+                <button onClick="{{ setList }}" style="{{ listBtn }}">list</button>
+              </div>
+            </div>
+
+            <div style="{{ feedLayout }}">
+              <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+                <article onClick="{{ it.open }}" style="{{ it.cardStyle }}" style-hover="border-color: #3a3a42; transform: translateY(-1px);">
+                  <div style="display: flex; align-items: center; gap: 10px; padding: var(--pad) var(--pad) 0;">
+                    <div style="{{ it.avatarStyle }}">{{ it.initial }}</div>
+                    <div style="min-width: 0; flex: 1;">
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ it.author }}</span>
+                        <sc-if value="{{ it.verified }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="#60a5fa"><path d="M12 2l2.2 2.1 3-.4.9 2.9 2.7 1.4-1.2 2.8 1.2 2.8-2.7 1.4-.9 2.9-3-.4L12 22l-2.2-2.1-3 .4-.9-2.9L3.2 16l1.2-2.8L3.2 10.4 5.9 9l.9-2.9 3 .4z"></path><path d="m8.6 12.2 2.1 2.1 4.4-4.4" stroke="#0b1220" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg></sc-if>
+                      </div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #71717a; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ it.handle }} · {{ it.date }}</div>
+                    </div>
+                    <span style="{{ it.badgeStyle }}">{{ it.platformLabel }}</span>
+                  </div>
+
+                  <sc-if value="{{ it.text }}">
+                    <p style="margin: 11px var(--pad) 0; font-size: 13.5px; line-height: 1.55; color: #d4d4d8; text-wrap: pretty;">{{ it.text }}</p>
+                  </sc-if>
+
+                  <sc-if value="{{ it.media }}">
+                    <div style="{{ it.mediaWrap }}">
+                      <div style="{{ it.mediaStyle }}">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2.5"></rect><circle cx="8.5" cy="9.5" r="1.6"></circle><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"></path></svg>
+                        <sc-if value="{{ it.mediaBadge }}"><span style="position: absolute; right: 8px; bottom: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: rgba(9,9,11,.82); border: 1px solid #2a2a30; color: #e4e4e7; padding: 3px 6px; border-radius: 6px;">{{ it.mediaBadge }}</span></sc-if>
+                        <sc-if value="{{ it.mediaTag }}"><span style="position: absolute; left: 8px; top: 8px; display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(16,185,129,.14); border: 1px solid rgba(16,185,129,.3); color: #34d399; padding: 3px 7px; border-radius: 6px;">{{ it.mediaTag }}</span></sc-if>
+                        <sc-if value="{{ it.isVideo }}">
+                          <span style="position: absolute; inset: 0; display: grid; place-items: center;"><span style="width: 40px; height: 40px; border-radius: 50%; background: rgba(9,9,11,.62); border: 1px solid #3f3f46; display: grid; place-items: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fafafa"><path d="M8 5.5v13l11-6.5z"></path></svg></span></span>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <div style="display: flex; align-items: center; gap: 14px; padding: 12px var(--pad) 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #71717a;">
+                    <sc-for list="{{ it.metrics }}" as="m" hint-placeholder-count="3">
+                      <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="color: #52525b;">{{ m.label }}</span>{{ m.value }}</span>
+                    </sc-for>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 6px; margin-top: 12px; padding: 10px var(--pad); border-top: 1px solid #202024; background: rgba(255,255,255,.012);">
+                    <button style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #2a2a30; color: #a1a1aa; border-radius: 8px; padding: 6px 9px; font-size: 11.5px; font-family: 'JetBrains Mono', monospace; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fafafa;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V6a2 2 0 0 1 2-2h8"></path></svg>copy</button>
+                    <button style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #2a2a30; color: #a1a1aa; border-radius: 8px; padding: 6px 9px; font-size: 11.5px; font-family: 'JetBrains Mono', monospace; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fafafa;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 11 5 5 5-5"></path><path d="M5 20h14"></path></svg>export.md</button>
+                    <sc-if value="{{ it.extraAction }}">
+                      <button style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #2a2a30; color: #a1a1aa; border-radius: 8px; padding: 6px 9px; font-size: 11.5px; font-family: 'JetBrains Mono', monospace; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fafafa;">{{ it.extraAction }}</button>
+                    </sc-if>
+                    <div style="flex: 1;"></div>
+                    <button onClick="{{ it.summarize }}" style="display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: #c7d2fe; border-radius: 8px; padding: 6px 10px; font-size: 11.5px; font-family: 'JetBrains Mono', monospace; cursor: pointer;" style-hover="background: rgba(99,102,241,.24); color: #fff;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"></path></svg>summarize</button>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isUrl }}">
+          <div style="max-width: 760px; margin: 0 auto; padding-top: 26px; animation: arFade .25s ease both;">
+            <h1 style="margin: 0; font-size: 20px; font-weight: 620; letter-spacing: -0.4px;">Direct URL Reader</h1>
+            <p style="margin: 8px 0 22px; color: #a1a1aa; font-size: 13.5px; line-height: 1.6;">Paste any post, thread, video or article URL. Agent Reach resolves the channel adapter locally and extracts structured content — no tokens spent until you ask for a summary.</p>
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1; display: flex; align-items: center; gap: 10px; background: #101013; border: 1px solid #26262b; border-radius: 11px; padding: 0 12px; height: 44px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="1.9" stroke-linecap="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 0 1 0 10h-2"></path><path d="M8 12h8"></path></svg>
+                <input value="{{ urlValue }}" onInput="{{ onUrl }}" placeholder="https://x.com/user/status/1794…" style="flex: 1; background: transparent; border: 0; outline: none; color: #fafafa; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;" />
+              </div>
+              <button style="background: var(--accent); border: 0; color: #fff; border-radius: 11px; padding: 0 20px; font-weight: 600; font-size: 13px; cursor: pointer;" style-hover="background: #4f46e5;">Fetch</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #71717a;">
+              <span style="background: #17171a; border: 1px solid #26262b; border-radius: 6px; padding: 4px 8px;">adapter: x/status</span>
+              <span style="background: #17171a; border: 1px solid #26262b; border-radius: 6px; padding: 4px 8px;">cookies: valid</span>
+              <span style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.28); color: #34d399; border-radius: 6px; padding: 4px 8px;">est. cost: $0.00</span>
+            </div>
+            <div style="margin-top: 22px; border: 1px solid #232327; background: #101013; border-radius: 14px; overflow: hidden;">
+              <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #202024;">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981;"></span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #a1a1aa;">extraction preview</span>
+                <div style="flex: 1;"></div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525b;">412 ms · 1 request</span>
+              </div>
+              <pre style="margin: 0; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.75; color: #a1a1aa; white-space: pre-wrap;">{{ urlPreview }}</pre>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSaved }}">
+          <div style="animation: arFade .25s ease both;">
+            <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px;">
+              <h1 style="margin: 0; font-size: 17px; font-weight: 620; letter-spacing: -0.3px; white-space: nowrap;">Saved &amp; Bookmarks</h1>
+              <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525b; white-space: nowrap;">6 exports · 2.4 MB local vault</span></sc-if>
+            </div>
+            <div style="border: 1px solid #232327; border-radius: 14px; overflow: hidden; background: #0e0e11;">
+              <sc-for list="{{ saved }}" as="s" hint-placeholder-count="6">
+                <div style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid #1c1c20;" style-hover="background: #131317;">
+                  <span style="{{ s.kindStyle }}">{{ s.kind }}</span>
+                  <div style="min-width: 220px; flex: 1 1 auto; overflow: hidden;">
+                    <div style="font-size: 13.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ s.title }}</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #71717a; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ s.path }}</div>
+                  </div>
+                  <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #52525b; flex: 0 0 auto; white-space: nowrap;">{{ s.date }}</span></sc-if>
+                  <sc-if value="{{ s.ai }}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #c7d2fe; background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 6px; padding: 3px 7px; flex: 0 0 auto; white-space: nowrap;">ai summary</span></sc-if>
+                  <button style="background: transparent; border: 1px solid #2a2a30; color: #a1a1aa; border-radius: 8px; padding: 5px 9px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; flex: 0 0 auto; white-space: nowrap;" style-hover="border-color: #3f3f46; color: #fafafa;">reveal</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSettings }}">
+          <div style="animation: arFade .25s ease both;">
+            <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px;">
+              <h1 style="margin: 0; font-size: 17px; font-weight: 620; letter-spacing: -0.3px;">Channels &amp; Settings</h1>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #10b981;">10 active</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #f59e0b;">4 degraded</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525b;">4 offline</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 10px;">
+              <sc-for list="{{ channels }}" as="c" hint-placeholder-count="18">
+                <div style="border: 1px solid #232327; background: #101013; border-radius: 12px; padding: 13px;" style-hover="border-color: #3a3a42;">
+                  <div style="display: flex; align-items: center; gap: 9px;">
+                    <span style="{{ c.dotStyle }}"></span>
+                    <span style="font-size: 13px; font-weight: 600;">{{ c.name }}</span>
+                    <div style="flex: 1;"></div>
+                    <span style="{{ c.stateStyle }}">{{ c.state }}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 11px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #71717a;">
+                    <span>{{ c.auth }}</span>
+                    <span>{{ c.latency }}</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; margin-top: 11px;">
+                    <button style="flex: 1; background: #18181b; border: 1px solid #27272a; color: #a1a1aa; border-radius: 8px; padding: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fafafa;">cookies</button>
+                    <button style="flex: 1; background: #18181b; border: 1px solid #27272a; color: #a1a1aa; border-radius: 8px; padding: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fafafa;">test</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </main>
+
+      <sc-if value="{{ selected }}">
+        <aside style="width: 420px; flex: 0 0 420px; border-left: 1px solid #1f1f23; background: rgba(12,12,14,.9); backdrop-filter: blur(16px); display: flex; flex-direction: column; animation: arSlide .22s ease both;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid #1f1f23;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"></path></svg>
+            <span style="font-size: 13px; font-weight: 600;">Detail Inspector</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #52525b;">{{ selected.id }}</span>
+            <div style="flex: 1;"></div>
+            <button onClick="{{ close }}" style="width: 28px; height: 28px; display: grid; place-items: center; background: transparent; border: 1px solid #26262b; border-radius: 8px; color: #a1a1aa; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fafafa;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+            </button>
+          </div>
+
+          <div style="padding: 14px 16px; border-bottom: 1px solid #1f1f23;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="{{ selected.avatarStyle }}">{{ selected.initial }}</div>
+              <div style="min-width: 0;">
+                <div style="font-weight: 600; font-size: 13.5px;">{{ selected.author }}</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #71717a; margin-top: 3px;">{{ selected.handle }} · {{ selected.platformLabel }}</div>
+              </div>
+            </div>
+            <p style="margin: 12px 0 0; font-size: 13px; line-height: 1.6; color: #d4d4d8;">{{ selected.text }}</p>
+          </div>
+
+          <div style="display: flex; gap: 2px; margin: 12px 16px 0; background: #101013; border: 1px solid #26262b; border-radius: 9px; padding: 3px;">
+            <button onClick="{{ setJson }}" style="{{ jsonTab }}">JSON</button>
+            <button onClick="{{ setMd }}" style="{{ mdTab }}">Markdown</button>
+          </div>
+
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 16px;">
+            <pre style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.75; color: #a1a1aa; white-space: pre-wrap; word-break: break-word;">{{ inspectorBody }}</pre>
+
+            <div style="margin-top: 16px; border: 1px solid var(--accent-line); background: linear-gradient(160deg, rgba(99,102,241,.1), rgba(139,92,246,.04)); border-radius: 13px; padding: 14px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"></path><path d="M18 16l.9 2.1L21 19l-2.1.9L18 22l-.9-2.1L15 19l2.1-.9z"></path></svg>
+                <span style="font-size: 12.5px; font-weight: 620; color: #e0e7ff;">AI Insight &amp; Sentiment</span>
+                <div style="flex: 1;"></div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #818cf8;">on-demand</span>
+              </div>
+
+              <sc-if value="{{ aiIdle }}" hint-placeholder-val="{{ true }}">
+                <div>
+                  <p style="margin: 9px 0 12px; font-size: 12px; line-height: 1.6; color: #a1a1aa;">Extraction is free and local. Running a summary sends this single record to Gemini — the only step that spends tokens.</p>
+                  <button onClick="{{ generate }}" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--accent); border: 0; color: #fff; border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="background: #4f46e5;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"></path></svg>
+                    Generate Summary with Gemini
+                  </button>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ aiLoading }}">
+                <div style="padding: 12px 0 4px; display: flex; flex-direction: column; gap: 8px;">
+                  <span style="height: 9px; border-radius: 5px; background: linear-gradient(90deg, #1f1f27, #33334a, #1f1f27); background-size: 320px 100%; animation: arShimmer 1.2s linear infinite;"></span>
+                  <span style="height: 9px; width: 86%; border-radius: 5px; background: linear-gradient(90deg, #1f1f27, #33334a, #1f1f27); background-size: 320px 100%; animation: arShimmer 1.2s linear infinite;"></span>
+                  <span style="height: 9px; width: 62%; border-radius: 5px; background: linear-gradient(90deg, #1f1f27, #33334a, #1f1f27); background-size: 320px 100%; animation: arShimmer 1.2s linear infinite;"></span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #818cf8; margin-top: 4px;">streaming · gemini-2.0-flash</span>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ aiDone }}">
+                <div style="animation: arFade .3s ease both;">
+                  <div style="display: flex; gap: 6px; margin: 11px 0;">
+                    <span style="{{ selected.sentimentStyle }}">{{ selected.sentiment }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #a1a1aa; background: #17171a; border: 1px solid #26262b; border-radius: 6px; padding: 3px 7px;">{{ selected.tokens }}</span>
+                  </div>
+                  <p style="margin: 0; font-size: 12.5px; line-height: 1.65; color: #d4d4d8; text-wrap: pretty;">{{ selected.summary }}</p>
+                  <ul style="margin: 10px 0 0; padding-left: 17px; color: #a1a1aa; font-size: 12px; line-height: 1.7;">
+                    <sc-for list="{{ selected.points }}" as="p" hint-placeholder-count="3">
+                      <li>{{ p.text }}</li>
+                    </sc-for>
+                  </ul>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 6px; padding: 12px 16px; border-top: 1px solid #1f1f23; background: #0c0c0e;">
+            <button style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #18181b; border: 1px solid #27272a; color: #d4d4d8; border-radius: 9px; padding: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fff;">.md</button>
+            <button style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #18181b; border: 1px solid #27272a; color: #d4d4d8; border-radius: 9px; padding: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fff;">.json</button>
+            <button style="flex: 1.4; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #18181b; border: 1px solid #27272a; color: #d4d4d8; border-radius: 9px; padding: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer;" style-hover="border-color: #3f3f46; color: #fff;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V6a2 2 0 0 1 2-2h8"></path></svg>clipboard</button>
+          </div>
+        </aside>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6366f1&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#6366f1&quot;,&quot;#8b5cf6&quot;,&quot;#10b981&quot;,&quot;#f59e0b&quot;],&quot;section&quot;:&quot;Theme&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;comfortable&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;defaultLayout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;grid&quot;,&quot;options&quot;:[&quot;grid&quot;,&quot;list&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Feed&quot;}}">
+const ITEMS = [
+  { id: "x_1794882301", platform: "x", platformLabel: "X", author: "Lena Ortiz", handle: "@lenabuilds", date: "2h", verified: true, initial: "L", hue: 210,
+    text: "shipped the local scraper path today — 18 channels, zero API keys, zero tokens. the only thing that costs money now is the summary you actually ask for.",
+    metrics: [{ label: "rt", value: "412" }, { label: "likes", value: "3.1k" }, { label: "replies", value: "88" }],
+    media: true, mediaBadge: "2 images",
+    sentiment: "positive · 0.82", tokens: "1.2k in / 180 out",
+    summary: "Announcement of a local-first scraping pipeline covering 18 channels without API keys, framing on-demand summarization as the only paid step.",
+    points: ["Cost framing is the core hook of the post", "Strong developer-audience engagement ratio (1.3% on likes)", "Reply thread contains 6 feature requests worth extracting"] },
+  { id: "x_1794701188", platform: "x", platformLabel: "X", author: "dev/null", handle: "@devnullish", date: "5h", verified: false, initial: "D", hue: 265,
+    text: "hot take: 90% of \"AI research agents\" are just a fetch call wrapped in three prompts. cache the page, diff it, summarize once.",
+    metrics: [{ label: "rt", value: "1.8k" }, { label: "likes", value: "9.4k" }, { label: "replies", value: "310" }],
+    media: false,
+    sentiment: "critical · 0.41", tokens: "0.9k in / 140 out",
+    summary: "Critique of agent tooling that spends model calls on work that caching and diffing could do locally.",
+    points: ["High virality relative to follower count", "Sentiment split: 62% agree, 24% pushback", "Useful positioning quote for landing copy"] },
+  { id: "ig_C8xk2LqR", platform: "instagram", platformLabel: "Instagram", author: "Studio Kessler", handle: "@studio.kessler", date: "1d", verified: true, initial: "S", hue: 330,
+    text: "Workspace teardown, third revision. Swipe for the cable routing nobody asked for.",
+    metrics: [{ label: "likes", value: "24.7k" }, { label: "comments", value: "612" }, { label: "saves", value: "3.9k" }],
+    media: true, mediaTall: true, mediaBadge: "carousel · 6", extraAction: "extract comments",
+    sentiment: "positive · 0.91", tokens: "2.1k in / 210 out",
+    summary: "Interior workspace carousel; comment volume is driven by product identification requests rather than the design itself.",
+    points: ["71% of comments ask where a specific item is from", "Peak engagement on slide 3", "Save-to-like ratio suggests reference-board behaviour"] },
+  { id: "yt_dQw9Xk7", platform: "youtube", platformLabel: "YouTube", author: "Marcus Oyelaran", handle: "@marcusbuilds", date: "3d", verified: true, initial: "M", hue: 8,
+    text: "I replaced my entire research stack with 200 lines of Rust (Tauri deep dive)",
+    metrics: [{ label: "views", value: "184k" }, { label: "likes", value: "9.2k" }, { label: "comments", value: "1.1k" }],
+    media: true, isVideo: true, mediaBadge: "24:18", mediaTag: "transcript ready", extraAction: "fetch transcript",
+    sentiment: "positive · 0.77", tokens: "14.6k in / 420 out",
+    summary: "Long-form walkthrough of a Rust/Tauri research tool, with the middle third dedicated to local caching strategy.",
+    points: ["Chapters 4–6 cover the caching approach in detail", "Transcript is 4,180 words, clean punctuation", "Comments request a Windows build (mentioned 84 times)"] },
+  { id: "pin_9921034", platform: "pinterest", platformLabel: "Pinterest", author: "Terminal Aesthetics", handle: "board/terminal-aesthetics", date: "4d", verified: false, initial: "T", hue: 355,
+    text: "Dark IDE palettes — 214 pins, updated weekly.",
+    metrics: [{ label: "pins", value: "214" }, { label: "saves", value: "18.2k" }, { label: "followers", value: "4.4k" }],
+    media: true, mediaTall: true, mediaBadge: "board", extraAction: "extract board",
+    sentiment: "neutral · 0.55", tokens: "1.6k in / 190 out",
+    summary: "Curated board of dark editor palettes, heavily weighted toward low-saturation zinc and slate bases with a single vivid accent.",
+    points: ["Dominant accent hues: indigo, emerald, amber", "62% of pins link to dead sources", "Good reference set for palette extraction"] },
+  { id: "rd_1kf82ha", platform: "reddit", platformLabel: "Reddit", author: "r/rust", handle: "u/borrowchecked", date: "6h", verified: false, initial: "R", hue: 25,
+    text: "Anyone else using Tauri for internal tools instead of Electron? 40MB binaries and the memory profile is a joke compared to what we had.",
+    metrics: [{ label: "score", value: "1.4k" }, { label: "comments", value: "287" }, { label: "ratio", value: "94%" }],
+    media: false, extraAction: "extract thread",
+    sentiment: "positive · 0.68", tokens: "8.2k in / 260 out",
+    summary: "Thread comparing Tauri and Electron for internal tooling, converging on binary size and memory as the deciding factors.",
+    points: ["Top comment raises WebView version fragmentation", "Three teams report production migrations", "Two unresolved objections about Linux packaging"] },
+  { id: "gh_agent_reach", platform: "github", platformLabel: "GitHub", author: "agent-reach/core", handle: "github.com/agent-reach", date: "12h", verified: false, initial: "G", hue: 150,
+    text: "feat(channels): bilibili adapter + cookie rotation for instagram graph fallback",
+    metrics: [{ label: "stars", value: "2.8k" }, { label: "forks", value: "134" }, { label: "issues", value: "27" }],
+    media: false, extraAction: "read diff",
+    sentiment: "neutral · 0.50", tokens: "3.4k in / 150 out",
+    summary: "Release notes adding a Bilibili adapter and cookie rotation for the Instagram fallback path.",
+    points: ["Adapter count moves from 17 to 18", "Cookie rotation reduces 429s in the fallback path", "Two open issues block the Windows release"] },
+  { id: "web_verge_8812", platform: "web", platformLabel: "Web", author: "The Standard Review", handle: "standardreview.io", date: "2d", verified: false, initial: "W", hue: 45,
+    text: "The quiet return of local-first software: why desktop tools are eating the research workflow again.",
+    metrics: [{ label: "words", value: "2,410" }, { label: "read", value: "9 min" }, { label: "links", value: "18" }],
+    media: false,
+    sentiment: "neutral · 0.58", tokens: "6.1k in / 300 out",
+    summary: "Feature arguing that local-first desktop tools are reclaiming research workflows as cloud costs and privacy rules tighten.",
+    points: ["Cites three vendor migrations back to desktop", "Weak on cost data — no figures given", "Useful framing quote in paragraph 9"] }
+];
+
+const CHANNELS = [
+  ["Twitter / X", "ok", "cookies · valid", "180 ms"], ["YouTube", "ok", "public api-free", "240 ms"],
+  ["Instagram", "warn", "cookies · 3d left", "620 ms"], ["Pinterest", "ok", "public", "310 ms"],
+  ["Reddit", "ok", "public json", "150 ms"], ["GitHub", "ok", "token · optional", "90 ms"],
+  ["Bilibili", "ok", "cookies · valid", "410 ms"], ["Web / Article", "ok", "readability", "120 ms"],
+  ["TikTok", "warn", "cookies · stale", "1.2 s"], ["LinkedIn", "off", "auth required", "—"],
+  ["Threads", "warn", "rate limited", "980 ms"], ["Hacker News", "ok", "public", "80 ms"],
+  ["Medium", "ok", "readability", "260 ms"], ["Substack", "warn", "paywall detected", "540 ms"],
+  ["Facebook", "off", "auth required", "—"], ["Mastodon", "ok", "public", "140 ms"],
+  ["Weibo", "off", "region blocked", "—"], ["Telegram", "off", "auth required", "—"]
+];
+
+const SAVED = [
+  ["MD", "Local-first research stack — 14 sources", "vault/2026-08/local-first-stack.md", "Aug 21", true],
+  ["JSON", "@lenabuilds thread + replies (88)", "vault/2026-08/lenabuilds-thread.json", "Aug 21", false],
+  ["MD", "Tauri vs Electron — r/rust digest", "vault/2026-08/tauri-electron.md", "Aug 20", true],
+  ["TXT", "marcusbuilds — full transcript 24:18", "vault/2026-08/marcus-transcript.txt", "Aug 19", false],
+  ["JSON", "Terminal Aesthetics board (214 pins)", "vault/2026-08/terminal-aesthetics.json", "Aug 18", false],
+  ["MD", "Studio Kessler comment extraction", "vault/2026-08/kessler-comments.md", "Aug 17", true]
+];
+
+const PLATFORMS = [
+  ["all", "All"], ["x", "Twitter/X"], ["youtube", "YouTube"], ["instagram", "Instagram"],
+  ["pinterest", "Pinterest"], ["reddit", "Reddit"], ["github", "GitHub"], ["bilibili", "Bilibili"], ["web", "Web"]
+];
+
+const NAV = [
+  ["feed", "Search & Feed", "8"], ["url", "Direct URL Reader", ""], ["saved", "Saved & Bookmarks", "6"], ["settings", "Channels & Settings", ""]
+];
+
+class Component extends DCLogic {
+  state = { view: "feed", platform: "all", layout: null, selectedId: "x_1794882301", tab: "json", ai: "idle", aiOn: true, query: "local-first agents", url: "https://x.com/lenabuilds/status/1794882301" };
+
+  componentDidMount() {
+    this.syncTheme();
+    this._onResize = () => {
+      const w = window.innerWidth;
+      if (w !== this.state.winW) this.setState({ winW: w });
+    };
+    window.addEventListener("resize", this._onResize);
+    this._onResize();
+  }
+  componentWillUnmount() { window.removeEventListener("resize", this._onResize); }
+  componentDidUpdate() { this.syncTheme(); }
+  syncTheme() {
+    const r = document.documentElement.style;
+    const a = this.props.accent || "#6366f1";
+    r.setProperty("--accent", a);
+    r.setProperty("--accent-soft", this.rgba(a, 0.14));
+    r.setProperty("--accent-line", this.rgba(a, 0.4));
+    const compact = (this.props.density || "comfortable") === "compact";
+    r.setProperty("--pad", compact ? "12px" : "16px");
+  }
+  rgba(hex, a) {
+    const h = hex.replace("#", "");
+    const n = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+  }
+
+  pill(active) {
+    return `display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; transition: all .15s ease; border: 1px solid ${active ? "var(--accent-line)" : "#26262b"}; background: ${active ? "var(--accent-soft)" : "#101013"}; color: ${active ? "#e0e7ff" : "#a1a1aa"};`;
+  }
+  seg(active) {
+    return `border: 0; border-radius: 7px; padding: 5px 11px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; background: ${active ? "#26262c" : "transparent"}; color: ${active ? "#fafafa" : "#71717a"};`;
+  }
+  tab(active) {
+    return `flex: 1; border: 0; border-radius: 7px; padding: 7px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; background: ${active ? "#26262c" : "transparent"}; color: ${active ? "#fafafa" : "#71717a"};`;
+  }
+
+  decorate(it) {
+    const sentColor = it.sentiment.startsWith("positive") ? ["#34d399", "rgba(16,185,129,.12)", "rgba(16,185,129,.3)"]
+      : it.sentiment.startsWith("critical") ? ["#fbbf24", "rgba(245,158,11,.12)", "rgba(245,158,11,.3)"]
+      : ["#a1a1aa", "#17171a", "#26262b"];
+    const tall = it.mediaTall;
+    return Object.assign({}, it, {
+      open: () => this.setState({ selectedId: it.id, ai: "idle", tab: "json" }),
+      summarize: () => this.setState({ selectedId: it.id, ai: "loading" }, () => setTimeout(() => this.setState({ ai: "done" }), 1400)),
+      cardStyle: "background: #101013; border: 1px solid #232327; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: all .16s ease; overflow: hidden; break-inside: avoid; margin-bottom: 12px;",
+      avatarStyle: `width: 34px; height: 34px; flex: 0 0 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 650; font-size: 13px; color: #fff; background: linear-gradient(140deg, hsl(${it.hue} 62% 46%), hsl(${it.hue + 28} 58% 34%));`,
+      badgeStyle: "font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a1a1aa; background: #17171a; border: 1px solid #26262b; border-radius: 6px; padding: 3px 7px; white-space: nowrap;",
+      mediaWrap: "padding: 12px var(--pad) 0;",
+      mediaStyle: `position: relative; width: 100%; ${tall ? "aspect-ratio: 4/5;" : "aspect-ratio: 16/9;"} border-radius: 10px; border: 1px solid #26262b; display: grid; place-items: center; background: linear-gradient(150deg, hsl(${it.hue} 26% 16%), #0e0e11 68%);`,
+      sentimentStyle: `font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: ${sentColor[0]}; background: ${sentColor[1]}; border: 1px solid ${sentColor[2]}; border-radius: 6px; padding: 3px 7px;`,
+      points: (it.points || []).map(text => ({ text }))
+    });
+  }
+
+  renderVals() {
+    const { view, platform, tab, ai, selectedId } = this.state;
+    const layout = this.state.layout || this.props.defaultLayout || "grid";
+    const shown = ITEMS.filter(i => platform === "all" || i.platform === platform);
+    const sel = ITEMS.find(i => i.id === selectedId);
+    const selected = sel ? this.decorate(sel) : null;
+    const winW = this.state.winW || (typeof window !== "undefined" ? window.innerWidth : 1440);
+    const wide = winW > 1180;
+    const counts = {};
+    ITEMS.forEach(i => { counts[i.platform] = (counts[i.platform] || 0) + 1; });
+
+    const md = sel ? `# ${sel.author} (${sel.handle})\n\n_${sel.platformLabel} · ${sel.date} · id ${sel.id}_\n\n${sel.text}\n\n## Metrics\n${sel.metrics.map(m => `- **${m.label}**: ${m.value}`).join("\n")}\n\n## Source\n- fetched locally, 0 tokens\n- adapter: ${sel.platform}/detail\n- cached: vault/cache/${sel.id}.html` : "";
+    const json = sel ? JSON.stringify({
+      id: sel.id, channel: sel.platform, author: { name: sel.author, handle: sel.handle, verified: !!sel.verified },
+      published: sel.date, text: sel.text, metrics: sel.metrics.reduce((a, m) => (a[m.label] = m.value, a), {}),
+      media: sel.media ? { count: 1, type: sel.isVideo ? "video" : "image", transcript: !!sel.mediaTag } : null,
+      extraction: { engine: "local", tokens_spent: 0, duration_ms: 412, cached: true }
+    }, null, 2) : "";
+
+    return {
+      nav: NAV.map(([id, label, count]) => ({
+        label, count, go: () => this.setState({ view: id }),
+        isSearch: id === "feed", isUrl: id === "url", isSaved: id === "saved", isSettings: id === "settings",
+        style: `display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-radius: 9px; padding: 9px 10px; cursor: pointer; font-family: inherit; font-size: 13px; transition: all .14s ease; background: ${view === id ? "#1b1b21" : "transparent"}; color: ${view === id ? "#fafafa" : "#8b8b93"}; box-shadow: ${view === id ? "inset 2px 0 0 var(--accent)" : "none"};`
+      })),
+      channelDots: CHANNELS.map(c => ({ style: `flex: 1; height: 4px; border-radius: 2px; background: ${c[1] === "ok" ? "#10b981" : c[1] === "warn" ? "#f59e0b" : "#3f3f46"};` })),
+      platforms: PLATFORMS.map(([id, label]) => ({
+        label, count: id === "all" ? ITEMS.length : (counts[id] || 0),
+        pick: () => this.setState({ platform: id }),
+        style: this.pill(platform === id),
+        dot: `width: 6px; height: 6px; border-radius: 50%; background: ${platform === id ? "var(--accent)" : "#3f3f46"};`,
+        countStyle: `font-size: 10px; color: ${platform === id ? "#a5b4fc" : "#52525b"};`
+      })),
+      channels: CHANNELS.map(([name, s, auth, latency]) => ({
+        name, auth, latency, state: s === "ok" ? "active" : s === "warn" ? "degraded" : "offline",
+        dotStyle: `width: 7px; height: 7px; border-radius: 50%; background: ${s === "ok" ? "#10b981" : s === "warn" ? "#f59e0b" : "#3f3f46"}; ${s === "ok" ? "animation: arPulse 2.4s infinite;" : ""}`,
+        stateStyle: `font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 7px; border-radius: 6px; color: ${s === "ok" ? "#34d399" : s === "warn" ? "#fbbf24" : "#71717a"}; background: ${s === "ok" ? "rgba(16,185,129,.1)" : s === "warn" ? "rgba(245,158,11,.1)" : "#17171a"}; border: 1px solid ${s === "ok" ? "rgba(16,185,129,.28)" : s === "warn" ? "rgba(245,158,11,.28)" : "#26262b"};`
+      })),
+      saved: SAVED.map(([kind, title, path, date, hasAi]) => ({
+        kind, title, path, date, ai: hasAi,
+        kindStyle: `font-family: 'JetBrains Mono', monospace; font-size: 10px; width: 44px; text-align: center; padding: 4px 0; border-radius: 6px; color: #a1a1aa; background: #17171a; border: 1px solid #26262b;`
+      })),
+      wide, engineLabel: wide ? "Local Scrape Engine · 0 tokens" : "0 tokens",
+      filterTags: wide ? [{ label: "lang:en" }, { label: "since:7d" }] : [],
+      items: shown.map(i => this.decorate(i)),
+      feedTitle: platform === "all" ? "Search & Feed" : PLATFORMS.find(p => p[0] === platform)[1],
+      showFeedMeta: !selected || wide,
+      feedMeta: `${shown.length} records · 0 tokens spent · cached 412 ms ago`,
+      feedLayout: layout === "grid"
+        ? "column-width: 342px; column-gap: 12px;"
+        : "display: flex; flex-direction: column; max-width: 780px;",
+      gridBtn: this.seg(layout === "grid"), listBtn: this.seg(layout === "list"),
+      setGrid: () => this.setState({ layout: "grid" }), setList: () => this.setState({ layout: "list" }),
+      isFeed: view === "feed", isUrl: view === "url", isSaved: view === "saved", isSettings: view === "settings",
+      goSettings: () => this.setState({ view: "settings" }),
+      query: this.state.query, onQuery: e => this.setState({ query: e.target.value }),
+      urlValue: this.state.url, onUrl: e => this.setState({ url: e.target.value }),
+      urlPreview: `channel   x/status\nauthor    Lena Ortiz (@lenabuilds) · verified\nposted    2026-08-22T09:14:00Z\nmedia     2 images (cached)\nmetrics   412 rt · 3.1k likes · 88 replies\ntokens    0\n\n"shipped the local scraper path today — 18 channels,\n zero API keys, zero tokens."`,
+      selected, inspectorBody: tab === "json" ? json : md,
+      jsonTab: this.tab(tab === "json"), mdTab: this.tab(tab === "md"),
+      setJson: () => this.setState({ tab: "json" }), setMd: () => this.setState({ tab: "md" }),
+      aiIdle: ai === "idle", aiLoading: ai === "loading", aiDone: ai === "done",
+      generate: () => this.setState({ ai: "loading" }, () => setTimeout(() => this.setState({ ai: "done" }), 1500)),
+      close: () => this.setState({ selectedId: null }),
+      toggleAi: () => this.setState({ aiOn: !this.state.aiOn }),
+      aiToggleStyle: `display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 11px; border-radius: 9px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; transition: all .15s ease; border: 1px solid ${this.state.aiOn ? "var(--accent-line)" : "#26262b"}; background: ${this.state.aiOn ? "var(--accent-soft)" : "#101013"}; color: ${this.state.aiOn ? "#c7d2fe" : "#a1a1aa"};`,
+      aiKnobStyle: `width: 24px; height: 13px; border-radius: 7px; position: relative; background: ${this.state.aiOn ? "var(--accent)" : "#3f3f46"}; box-shadow: inset ${this.state.aiOn ? "11px" : "0"} 0 0 -1px rgba(255,255,255,.9);`
+    };
+  }
+}
+
+</script>
+</body>
+</html>
