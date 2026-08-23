@@ -572,6 +572,9 @@ const runSearch = async () => {
   }, 1000);
 
   items.value = []; // Arama başladığında önceki sonuçları temizle ki radar animasyonu ekranda parlasın
+  await nextTick();
+  await new Promise(r => requestAnimationFrame(r));
+
   try {
     const res = await invoke('execute_search', {
       platform: selectedPlatform.value === 'all' ? 'all' : selectedPlatform.value,
