@@ -572,24 +572,12 @@ const runSearch = async () => {
   }, 1000);
 
   items.value = []; // Arama başladığında önceki sonuçları temizle ki radar animasyonu ekranda parlasın
-  showToast('Arama Başlatıldı', `"${searchQuery.value}" için yerel arama yapılıyor...`, 'info');
-
-  // Vue DOM güncellemesinin tamamlanmasını bekle, ardından 80ms boşluk bırak
-  await nextTick();
-  await new Promise(r => setTimeout(r, 80));
-
   try {
-    const searchPromise = invoke('execute_search', {
+    const res = await invoke('execute_search', {
       platform: selectedPlatform.value === 'all' ? 'all' : selectedPlatform.value,
       query: searchQuery.value,
       limit: selectedPlatform.value === 'all' ? 5 : 10
     });
-
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Arama 15 saniye içinde tamamlanamadı veya Tauri bağlantısı kesildi.')), 15000)
-    );
-
-    const res = await Promise.race([searchPromise, timeoutPromise]);
 
     if (!isSearching.value) return; // İptal edildiyse işlemi yoksay
 

@@ -63,66 +63,62 @@ async fn run_doctor() -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        let lim = limit.unwrap_or(10);
-        let python_bin = format!("{}/venv/bin/python3", PROJECT_DIR);
-        let script = match platform.as_str() {
-            "all" => format!("{}/agent_reach/tools/all_search.py", PROJECT_DIR),
-            "youtube" => format!("{}/agent_reach/tools/yt_search.py", PROJECT_DIR),
-            "instagram" => format!("{}/agent_reach/tools/ig_search.py", PROJECT_DIR),
-            "pinterest" => format!("{}/agent_reach/tools/pin_search.py", PROJECT_DIR),
-            "reddit" => format!("{}/agent_reach/tools/reddit_search.py", PROJECT_DIR),
-            "github" => format!("{}/agent_reach/tools/github_search.py", PROJECT_DIR),
-            "linkedin" => format!("{}/agent_reach/tools/linkedin_search.py", PROJECT_DIR),
-            "tiktok" => format!("{}/agent_reach/tools/tiktok_search.py", PROJECT_DIR),
-            "web" => format!("{}/agent_reach/tools/web_search.py", PROJECT_DIR),
-            "x" | "twitter" | _ => format!("{}/agent_reach/tools/twitter_search.py", PROJECT_DIR),
+fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
+    let lim = limit.unwrap_or(10);
+    let python_bin = format!("{}/venv/bin/python3", PROJECT_DIR);
+    let script = match platform.as_str() {
+        "all" => format!("{}/agent_reach/tools/all_search.py", PROJECT_DIR),
+        "youtube" => format!("{}/agent_reach/tools/yt_search.py", PROJECT_DIR),
+        "instagram" => format!("{}/agent_reach/tools/ig_search.py", PROJECT_DIR),
+        "pinterest" => format!("{}/agent_reach/tools/pin_search.py", PROJECT_DIR),
+        "reddit" => format!("{}/agent_reach/tools/reddit_search.py", PROJECT_DIR),
+        "github" => format!("{}/agent_reach/tools/github_search.py", PROJECT_DIR),
+        "linkedin" => format!("{}/agent_reach/tools/linkedin_search.py", PROJECT_DIR),
+        "tiktok" => format!("{}/agent_reach/tools/tiktok_search.py", PROJECT_DIR),
+        "web" => format!("{}/agent_reach/tools/web_search.py", PROJECT_DIR),
+        "x" | "twitter" | _ => format!("{}/agent_reach/tools/twitter_search.py", PROJECT_DIR),
+    };
+
+    let sys_path = std::env::var("PATH").unwrap_or_default();
+    let home = std::env::var("HOME").unwrap_or_else(|_| "/Users/mehmetakar".to_string());
+    let full_path = format!("{}:{}/.nvm/versions/node/v20.19.5/bin:{}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin", sys_path, home, home);
+
+    let output = Command::new(&python_bin)
+        .arg(&script)
+        .arg(&query)
+        .arg(lim.to_string())
+        .current_dir(PROJECT_DIR)
+        .env("PYTHONPATH", PROJECT_DIR)
+        .env("PATH", full_path)
+        .output()
+        .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    if output.status.success() {
+        Ok(SearchResponse {
+            success: true,
+            platform,
+            raw_output: stdout,
+            error: None,
+        })
+    } else {
+        let err_msg = if !stderr.trim().is_empty() {
+            stderr
+        } else if !stdout.trim().is_empty() {
+            stdout.clone()
+        } else {
+            "Arama komutu sıfır dışı çıkış kodu döndürdü.".to_string()
         };
 
-        let sys_path = std::env::var("PATH").unwrap_or_default();
-        let home = std::env::var("HOME").unwrap_or_else(|_| "/Users/mehmetakar".to_string());
-        let full_path = format!("{}:{}/.nvm/versions/node/v20.19.5/bin:{}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin", sys_path, home, home);
-
-        let output = Command::new(&python_bin)
-            .arg(&script)
-            .arg(&query)
-            .arg(lim.to_string())
-            .current_dir(PROJECT_DIR)
-            .env("PYTHONPATH", PROJECT_DIR)
-            .env("PATH", full_path)
-            .output()
-            .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
-
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-        if output.status.success() {
-            Ok(SearchResponse {
-                success: true,
-                platform,
-                raw_output: stdout,
-                error: None,
-            })
-        } else {
-            let err_msg = if !stderr.trim().is_empty() {
-                stderr
-            } else if !stdout.trim().is_empty() {
-                stdout.clone()
-            } else {
-                "Arama komutu sıfır dışı çıkış kodu döndürdü.".to_string()
-            };
-
-            Ok(SearchResponse {
-                success: false,
-                platform,
-                raw_output: stdout,
-                error: Some(err_msg),
-            })
-        }
-    })
-    .await
-    .map_err(|e| format!("İş parçacığı yürütme hatası: {}", e))?
+        Ok(SearchResponse {
+            success: false,
+            platform,
+            raw_output: stdout,
+            error: Some(err_msg),
+        })
+    }
 }
 
 #[tauri::command]
