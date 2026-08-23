@@ -59,19 +59,6 @@ const selectedPlatform = ref('x');
 const layout = ref('grid'); // 'grid' | 'list'
 const searchQuery = ref('');
 const isSearching = ref(false);
-const searchElapsedSeconds = ref(0);
-let searchTimerId = null;
-
-const cancelSearch = () => {
-  if (isSearching.value) {
-    isSearching.value = false;
-    if (searchTimerId) {
-      clearInterval(searchTimerId);
-      searchTimerId = null;
-    }
-    showToast('İptal Edildi', 'Arama işlemi kullanıcı tarafından durduruldu.', 'info');
-  }
-};
 
 // In-App Video & Media Modal State
 const activeModalMedia = ref(null); // { type: 'youtube' | 'instagram' | 'pinterest' | 'image', url: string, title: string, author: string }
@@ -563,37 +550,19 @@ const runSearch = async () => {
   }
 
   isSearching.value = true;
-  searchElapsedSeconds.value = 0;
-  if (searchTimerId) clearInterval(searchTimerId);
-  searchTimerId = setInterval(() => {
-    if (isSearching.value) {
-      searchElapsedSeconds.value += 1;
-    }
-  }, 1000);
-
-  items.value = []; // Arama başladığında önceki sonuçları temizle ki radar animasyonu ekranda parlasın
-  await nextTick();
-  await new Promise(r => requestAnimationFrame(r));
+  showToast('Arama Başlatıldı', `"${searchQuery.value}" için yerel arama yapılıyor...`, 'info');
 
   try {
     const res = await invoke('execute_search', {
       platform: selectedPlatform.value === 'all' ? 'all' : selectedPlatform.value,
       query: searchQuery.value,
-      limit: selectedPlatform.value === 'all' ? 5 : 10
+      limit: 10
     });
-
-    if (!isSearching.value) return; // İptal edildiyse işlemi yoksay
 
     if (res.success) {
       let parsedList = [];
       try {
-        let raw = (res.raw_output || '').trim();
-        const jsonStart = raw.indexOf('[');
-        const jsonEnd = raw.lastIndexOf(']');
-        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-          raw = raw.substring(jsonStart, jsonEnd + 1);
-        }
-        const parsedData = JSON.parse(raw);
+        const parsedData = JSON.parse(res.raw_output);
         if (Array.isArray(parsedData)) {
           parsedList = parsedData;
         }
@@ -653,7 +622,7 @@ const runSearch = async () => {
           web: 'Web makalesi'
         };
         const name = platformMap[selectedPlatform.value] || 'içerik';
-        showToast('Başarılı', `${parsedList.length} adet ${name} standartlaştırılmış formatta listelendi! (${searchElapsedSeconds.value} sn)`, 'success');
+        showToast('Başarılı', `${parsedList.length} adet ${name} standartlaştırılmış formatta listelendi!`, 'success');
       } else {
         showToast('Bilgi', 'Aramanıza uygun sonuç bulunamadı.', 'info');
       }
@@ -666,15 +635,10 @@ const runSearch = async () => {
       }
     }
   } catch (err) {
-    if (!isSearching.value) return;
     console.error('Arama hatası:', err);
     showToast('Bağlantı Hatası', `Yerel komut çalıştırılamadı: ${err}`, 'error');
   } finally {
     isSearching.value = false;
-    if (searchTimerId) {
-      clearInterval(searchTimerId);
-      searchTimerId = null;
-    }
   }
 };
 
@@ -1536,58 +1500,10 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Yükleme Göstergesi (Media Research Marka Kiti 200x200 Radar Ping Animasyonu) -->
-            <div v-if="isSearching" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
-              <div class="relative w-[200px] h-[200px] flex items-center justify-center">
-                <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research Radar Tarayıcı">
-                  <!-- Ping halkaları: SVG SMIL native animasyon (WebKit/Tauri uyumlu) -->
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                  </circle>
-                  <!-- Sabit Dış Sinyal Çemberi -->
-                  <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".35" stroke-width="6"/>
-                  <!-- Kalın Tarama Halkası -->
-                  <circle cx="256" cy="256" r="126" fill="none" stroke="#E2232A" stroke-width="30"/>
-                  <!-- Merkez Hedef Çekirdek -->
-                  <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
-                </svg>
-              </div>
-
-              <div class="text-center">
-                <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
-                  <span>{{ selectedPlatform === 'all' ? '8 Platformda Derin Tarama Yapılıyor' : (selectedPlatform.toUpperCase() + ' Taranıyor') }}</span>
-                  <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
-                </div>
-                <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md">
-                  Yerel motor aranıyor: <span class="text-[#E2232A] font-semibold">"{{ searchQuery }}"</span>
-                </div>
-                <div class="font-mono text-[11px] text-[#5C6373] mt-1">
-                  {{ selectedPlatform === 'all' ? 'Twitter · YouTube · Instagram · Pinterest · Reddit · GitHub · LinkedIn · Web' : 'Seçili kanal taranıyor' }}
-                </div>
-                <div class="flex items-center justify-center gap-3 mt-3">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono bg-[#222733] border border-[#2a2f3a] text-[#38bdf8]">
-                    {{ searchElapsedSeconds }}s geçti
-                  </span>
-                  <button
-                    @click="cancelSearch"
-                    class="px-3 py-1 bg-[#222733] hover:bg-[#b91c1c]/30 hover:border-[#E2232A]/50 text-[#94a3b8] hover:text-white rounded-lg text-xs font-mono transition-colors border border-[#2a2f3a] cursor-pointer"
-                  >
-                    Aramayı İptal Et
-                  </button>
-                </div>
-              </div>
+            <!-- Yükleme Göstergesi -->
+            <div v-if="isSearching" class="p-8 border border-[#262a35] bg-[#181b22] rounded-2xl flex flex-col items-center justify-center gap-3 my-4 animate-fade">
+              <Loader2 class="w-6 h-6 text-[#E2232A] animate-spin" />
+              <div class="font-mono text-xs text-[#94a3b8]">Yerel CLI üzerinden aranıyor: "{{ searchQuery }}"...</div>
             </div>
 
             <!-- Boş Arama Durumu -->
@@ -1858,42 +1774,7 @@ onMounted(() => {
               <span class="bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] rounded-md px-2 py-1">tahmini maliyet: $0.00</span>
             </div>
 
-            <!-- URL Yükleme Göstergesi (Marka Kiti Radar Animasyonu) -->
-            <div v-if="isUrlLoading" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
-              <div class="relative w-[200px] h-[200px] flex items-center justify-center">
-                <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research URL Ayrıştırma">
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".35" stroke-width="6"/>
-                  <circle cx="256" cy="256" r="126" fill="none" stroke="#E2232A" stroke-width="30"/>
-                  <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
-                </svg>
-              </div>
-              <div class="text-center">
-                <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
-                  <span>URL İçeriği Çözümleniyor</span>
-                  <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
-                </div>
-                <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md truncate">
-                  {{ urlInput }}
-                </div>
-              </div>
-            </div>
-
-            <div v-if="directUrlResult && !isUrlLoading" class="mt-6 border border-[#262a35] bg-[#181b22] rounded-2xl overflow-hidden shadow-lg">
+            <div v-if="directUrlResult" class="mt-6 border border-[#262a35] bg-[#181b22] rounded-2xl overflow-hidden shadow-lg">
               <div class="flex items-center gap-2.5 px-4 py-3 border-b border-[#262a35] bg-[#15181f]">
                 <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
                 <span class="font-mono text-[11px] text-[#94a3b8]">ayrıştırılmış içerik önizlemesi</span>
@@ -2001,43 +1882,8 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Asistan Yükleme Durumu (Marka Kiti Radar Animasyonu) -->
-            <div v-if="isAssistantGenerating" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
-              <div class="relative w-[200px] h-[200px] flex items-center justify-center">
-                <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research Yapay Zeka Sentezi">
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="0s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
-                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
-                  </circle>
-                  <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".35" stroke-width="6"/>
-                  <circle cx="256" cy="256" r="126" fill="none" stroke="#E2232A" stroke-width="30"/>
-                  <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
-                </svg>
-              </div>
-              <div class="text-center">
-                <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
-                  <span>{{ geminiModel }} ile Rapor Sentezleniyor</span>
-                  <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
-                </div>
-                <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md">
-                  Sosyal veriler, pazar eğilimleri ve kullanıcı görüşleri birleştiriliyor...
-                </div>
-              </div>
-            </div>
-
             <!-- Asistan Çıktısı -->
-            <div v-if="aiAssistantResponse && !isAssistantGenerating" class="mt-6 border border-[rgba(226,35,42,0.3)] bg-gradient-to-br from-[rgba(226,35,42,0.08)] to-[#181b22] rounded-2xl p-6 shadow-xl animate-fade">
+            <div v-if="aiAssistantResponse" class="mt-6 border border-[rgba(226,35,42,0.3)] bg-gradient-to-br from-[rgba(226,35,42,0.08)] to-[#181b22] rounded-2xl p-6 shadow-xl animate-fade">
               <div class="flex items-center gap-2 mb-4 border-b border-[#262a35] pb-3.5">
                 <Bot class="w-4 h-4 text-[#E2232A]" />
                 <span class="text-sm font-semibold text-[#f1f5f9]">Yapay Zeka Analiz Çıktısı</span>
