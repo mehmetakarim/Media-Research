@@ -801,6 +801,14 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
       </div>
 
       <style>
+        .pdf-content-body h1, .pdf-content-body h2, .pdf-content-body h3, .pdf-content-body h4 {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+        .pdf-content-body p, .pdf-content-body li, .pdf-content-body blockquote, .pdf-content-body tr {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
         .pdf-content-body h1 { font-size: 16px; font-weight: 700; color: #0f172a; border-left: 4px solid #E2232A; padding-left: 8px; margin: 18px 0 8px 0; }
         .pdf-content-body h2 { font-size: 14.5px; font-weight: 700; color: #0f172a; border-left: 3px solid #E2232A; padding-left: 8px; margin: 16px 0 6px 0; }
         .pdf-content-body h3 { font-size: 13.5px; font-weight: 600; color: #1e293b; margin: 12px 0 4px 0; }
@@ -821,11 +829,12 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
     const safeFilename = `${cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}.pdf`;
 
     const opt = {
-      margin: [10, 10, 10, 10],
+      margin: [12, 12, 12, 12],
       filename: safeFilename,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     // Generate PDF as Uint8Array byte array for 100% valid PDF binary
