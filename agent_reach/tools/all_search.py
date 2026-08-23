@@ -50,10 +50,10 @@ def search_all_platforms(query, per_platform=4):
         t.start()
         threads.append(t)
 
-    # Wait at most 3.5 seconds total across all threads
+    # Wait at most 2.2 seconds total across all threads
     start_time = time.time()
     for t in threads:
-        remaining = 3.5 - (time.time() - start_time)
+        remaining = 2.2 - (time.time() - start_time)
         if remaining <= 0:
             break
         t.join(timeout=remaining)
