@@ -1500,10 +1500,36 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Yükleme Göstergesi -->
-            <div v-if="isSearching" class="p-8 border border-[#262a35] bg-[#181b22] rounded-2xl flex flex-col items-center justify-center gap-3 my-4 animate-fade">
-              <Loader2 class="w-6 h-6 text-[#E2232A] animate-spin" />
-              <div class="font-mono text-xs text-[#94a3b8]">Yerel CLI üzerinden aranıyor: "{{ searchQuery }}"...</div>
+            <!-- Yükleme Göstergesi (Media Research Marka Kiti 200x200 Radar Ping Animasyonu) -->
+            <div v-if="isSearching" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
+              <div class="relative w-[200px] h-[200px] flex items-center justify-center">
+                <!-- Marka Kiti SVG Radar Ping İkonu -->
+                <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research Radar Tarayıcı">
+                  <!-- Dış Dalgalanan Radar Ping Halkaları -->
+                  <circle class="radar-ping" cx="256" cy="256" r="46.5"/>
+                  <circle class="radar-ping delay-1" cx="256" cy="256" r="46.5"/>
+                  <circle class="radar-ping delay-2" cx="256" cy="256" r="46.5"/>
+                  <!-- Sabit Dış Sinyal Çemberi -->
+                  <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".4" stroke-width="7"/>
+                  <!-- Kalın Tarama Halkası -->
+                  <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="32"/>
+                  <!-- Merkez Hedef Çekirdek -->
+                  <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
+                </svg>
+              </div>
+
+              <div class="text-center">
+                <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
+                  <span>8 Platformda Derin Tarama Yapılıyor</span>
+                  <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
+                </div>
+                <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md">
+                  Yerel motor aranıyor: <span class="text-[#E2232A] font-semibold">"{{ searchQuery }}"</span>
+                </div>
+                <div class="font-mono text-[11px] text-[#5C6373] mt-1">
+                  Twitter · YouTube · Instagram · Pinterest · Reddit · GitHub · LinkedIn · Web
+                </div>
+              </div>
             </div>
 
             <!-- Boş Arama Durumu -->
@@ -1774,7 +1800,30 @@ onMounted(() => {
               <span class="bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] rounded-md px-2 py-1">tahmini maliyet: $0.00</span>
             </div>
 
-            <div v-if="directUrlResult" class="mt-6 border border-[#262a35] bg-[#181b22] rounded-2xl overflow-hidden shadow-lg">
+            <!-- URL Yükleme Göstergesi (Marka Kiti Radar Animasyonu) -->
+            <div v-if="isUrlLoading" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
+              <div class="relative w-[200px] h-[200px] flex items-center justify-center">
+                <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research URL Ayrıştırma">
+                  <circle class="radar-ping" cx="256" cy="256" r="46.5"/>
+                  <circle class="radar-ping delay-1" cx="256" cy="256" r="46.5"/>
+                  <circle class="radar-ping delay-2" cx="256" cy="256" r="46.5"/>
+                  <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".4" stroke-width="7"/>
+                  <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="32"/>
+                  <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
+                </svg>
+              </div>
+              <div class="text-center">
+                <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
+                  <span>URL İçeriği Çözümleniyor</span>
+                  <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
+                </div>
+                <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md truncate">
+                  {{ urlInput }}
+                </div>
+              </div>
+            </div>
+
+            <div v-if="directUrlResult && !isUrlLoading" class="mt-6 border border-[#262a35] bg-[#181b22] rounded-2xl overflow-hidden shadow-lg">
               <div class="flex items-center gap-2.5 px-4 py-3 border-b border-[#262a35] bg-[#15181f]">
                 <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
                 <span class="font-mono text-[11px] text-[#94a3b8]">ayrıştırılmış içerik önizlemesi</span>
@@ -1882,8 +1931,31 @@ onMounted(() => {
               </div>
             </div>
 
+            <!-- Asistan Yükleme Durumu (Marka Kiti Radar Animasyonu) -->
+            <div v-if="isAssistantGenerating" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
+              <div class="relative w-[200px] h-[200px] flex items-center justify-center">
+                <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research Yapay Zeka Sentezi">
+                  <circle class="radar-ping" cx="256" cy="256" r="46.5"/>
+                  <circle class="radar-ping delay-1" cx="256" cy="256" r="46.5"/>
+                  <circle class="radar-ping delay-2" cx="256" cy="256" r="46.5"/>
+                  <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".4" stroke-width="7"/>
+                  <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="32"/>
+                  <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
+                </svg>
+              </div>
+              <div class="text-center">
+                <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
+                  <span>{{ geminiModel }} ile Rapor Sentezleniyor</span>
+                  <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
+                </div>
+                <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md">
+                  Sosyal veriler, pazar eğilimleri ve kullanıcı görüşleri birleştiriliyor...
+                </div>
+              </div>
+            </div>
+
             <!-- Asistan Çıktısı -->
-            <div v-if="aiAssistantResponse" class="mt-6 border border-[rgba(226,35,42,0.3)] bg-gradient-to-br from-[rgba(226,35,42,0.08)] to-[#181b22] rounded-2xl p-6 shadow-xl animate-fade">
+            <div v-if="aiAssistantResponse && !isAssistantGenerating" class="mt-6 border border-[rgba(226,35,42,0.3)] bg-gradient-to-br from-[rgba(226,35,42,0.08)] to-[#181b22] rounded-2xl p-6 shadow-xl animate-fade">
               <div class="flex items-center gap-2 mb-4 border-b border-[#262a35] pb-3.5">
                 <Bot class="w-4 h-4 text-[#E2232A]" />
                 <span class="text-sm font-semibold text-[#f1f5f9]">Yapay Zeka Analiz Çıktısı</span>
