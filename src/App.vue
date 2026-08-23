@@ -757,30 +757,31 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
     const dateStr = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     const cleanTitle = reportTitle || 'Pazar Trend ve Medya Analiz Raporu';
 
-    // Rich Printable HTML Template Container with embedded modern styling
+    // Rich Printable HTML Template Container with exact printable A4 dimensions (190mm printable width)
     const element = document.createElement('div');
-    element.style.width = '794px'; // Standard A4 width in px at 96 DPI
+    element.style.width = '680px'; // 680px provides optimal padding for A4 with 10mm margins
     element.style.padding = '0';
     element.style.margin = '0 auto';
     element.style.backgroundColor = '#ffffff';
     element.style.color = '#1e293b';
     element.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
     element.style.boxSizing = 'border-box';
+    element.style.wordBreak = 'break-word';
 
     element.innerHTML = `
-      <div style="background-color: #ffffff; padding: 32px 36px;">
+      <div style="background-color: #ffffff; padding: 24px 28px; width: 100%; box-sizing: border-box;">
         <!-- Header Banner (Lenovo Red) -->
-        <div style="background: linear-gradient(135deg, #E2232A 0%, #b91c1c 100%); color: #ffffff; padding: 18px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(226, 35, 42, 0.2);">
+        <div style="background: linear-gradient(135deg, #E2232A 0%, #b91c1c 100%); color: #ffffff; padding: 14px 20px; border-radius: 10px; margin-bottom: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">MEDIA RESEARCH</div>
-            <div style="font-size: 11px; opacity: 0.9; font-family: monospace;">SOSYAL İSTİHBARAT & PAZAR RAPORU</div>
+            <div style="font-size: 10.5px; opacity: 0.95; font-family: monospace;">SOSYAL İSTİHBARAT & PAZAR RAPORU</div>
           </div>
         </div>
 
         <!-- Title and Metadata Section -->
-        <div style="border-bottom: 2px solid #E2232A; padding-bottom: 14px; margin-bottom: 24px;">
-          <h1 style="font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; line-height: 1.3;">${cleanTitle}</h1>
-          <div style="display: flex; gap: 16px; font-size: 11px; color: #64748b; font-family: monospace;">
+        <div style="border-bottom: 2px solid #E2232A; padding-bottom: 12px; margin-bottom: 20px;">
+          <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; line-height: 1.3;">${cleanTitle}</h1>
+          <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 10.5px; color: #64748b; font-family: monospace;">
             <span>📅 Tarih: <strong style="color: #334155;">${dateStr}</strong></span>
             <span>🤖 Model: <strong style="color: #E2232A;">${geminiModel.value}</strong></span>
             <span>⚡ Kaynak: <strong style="color: #334155;">Media Research Yerel Motoru</strong></span>
@@ -788,32 +789,32 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
         </div>
 
         <!-- Rich Markdown Body -->
-        <div class="pdf-content-body" style="font-size: 13px; line-height: 1.7; color: #334155;">
+        <div class="pdf-content-body" style="font-size: 12.5px; line-height: 1.65; color: #334155;">
           ${renderedHtml}
         </div>
 
         <!-- Footer -->
-        <div style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; font-family: monospace;">
+        <div style="margin-top: 36px; border-top: 1px solid #e2e8f0; padding-top: 12px; display: flex; justify-content: space-between; font-size: 9.5px; color: #94a3b8; font-family: monospace;">
           <span>Media Research · Sıfır Token Yerel Kazıma & AI İstihbarat Platformu</span>
           <span>Gizli & Kurumsal Rapor</span>
         </div>
       </div>
 
       <style>
-        .pdf-content-body h1 { font-size: 18px; font-weight: 700; color: #0f172a; border-left: 4px solid #E2232A; padding-left: 10px; margin: 20px 0 10px 0; }
-        .pdf-content-body h2 { font-size: 16px; font-weight: 700; color: #0f172a; border-left: 3px solid #E2232A; padding-left: 8px; margin: 18px 0 8px 0; }
-        .pdf-content-body h3 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 14px 0 6px 0; }
-        .pdf-content-body p { margin: 0 0 12px 0; }
-        .pdf-content-body ul, .pdf-content-body ol { margin: 0 0 14px 0; padding-left: 20px; }
+        .pdf-content-body h1 { font-size: 16px; font-weight: 700; color: #0f172a; border-left: 4px solid #E2232A; padding-left: 8px; margin: 18px 0 8px 0; }
+        .pdf-content-body h2 { font-size: 14.5px; font-weight: 700; color: #0f172a; border-left: 3px solid #E2232A; padding-left: 8px; margin: 16px 0 6px 0; }
+        .pdf-content-body h3 { font-size: 13.5px; font-weight: 600; color: #1e293b; margin: 12px 0 4px 0; }
+        .pdf-content-body p { margin: 0 0 10px 0; }
+        .pdf-content-body ul, .pdf-content-body ol { margin: 0 0 12px 0; padding-left: 18px; }
         .pdf-content-body li { margin-bottom: 4px; }
-        .pdf-content-body blockquote { background: #f8fafc; border-left: 3px solid #E2232A; margin: 12px 0; padding: 10px 14px; color: #475569; font-style: italic; border-radius: 4px; }
-        .pdf-content-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px; }
-        .pdf-content-body th { background: #fee2e2; color: #991b1b; text-align: left; padding: 8px 10px; border: 1px solid #fecaca; font-weight: 600; }
-        .pdf-content-body td { padding: 8px 10px; border: 1px solid #e2e8f0; }
+        .pdf-content-body blockquote { background: #f8fafc; border-left: 3px solid #E2232A; margin: 10px 0; padding: 8px 12px; color: #475569; font-style: italic; border-radius: 4px; }
+        .pdf-content-body table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 11.5px; }
+        .pdf-content-body th { background: #fee2e2; color: #991b1b; text-align: left; padding: 6px 8px; border: 1px solid #fecaca; font-weight: 600; }
+        .pdf-content-body td { padding: 6px 8px; border: 1px solid #e2e8f0; }
         .pdf-content-body tr:nth-child(even) td { background: #f8fafc; }
         .pdf-content-body strong { color: #0f172a; }
-        .pdf-content-body code { background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #b91c1c; }
-        .pdf-content-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 20px 0; }
+        .pdf-content-body code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #b91c1c; }
+        .pdf-content-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 16px 0; }
       </style>
     `;
 
@@ -823,7 +824,7 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
       margin: [10, 10, 10, 10],
       filename: safeFilename,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff' },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
