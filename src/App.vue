@@ -2,30 +2,31 @@
 import { ref, computed, onMounted } from 'vue';
 import { invoke as _tauriInvoke } from '@tauri-apps/api/core';
 
-// Tauri bağlam kontrolü — tarayıcı önizlemesinde sahte veri, masaüstünde gerçek
-const isTauri = typeof window !== 'undefined' && window.__TAURI_INTERNALS__ !== undefined;
-
+// Evrensel invoke sarmalayıcısı — Tauri masaüstünde doğrudan Rust'ı çağırır,
+// tarayıcı önizlemesinde (localhost dev) hata fırlatıldığında mock veriye geçer.
 const invoke = async (cmd, args) => {
-  if (isTauri) return _tauriInvoke(cmd, args);
-  // Geliştirme modu mock (localhost:1420 tarayıcı önizlemesi)
-  console.warn(`[DEV MOCK] invoke: ${cmd}`, args);
-  await new Promise(r => setTimeout(r, 3000));
-  if (cmd === 'execute_search') {
-    return {
-      success: true,
-      platform: args?.platform || 'all',
-      raw_output: JSON.stringify([
-        {
-          id: 'mock-1', platform: 'x',
-          text: '🔴 Dev modu: Gerçek veriler için Tauri masaüstü uygulamasını kullanın.',
-          author: 'Media Research Dev', handle: '@mediaresearch',
-          date: new Date().toLocaleDateString('tr-TR'),
-          url: '#', metrics: [{ label: 'Beğeni', value: '42' }, { label: 'Yorum', value: '7' }]
-        }
-      ])
-    };
+  try {
+    return await _tauriInvoke(cmd, args);
+  } catch (err) {
+    console.warn(`[Tauri IPC Dev Mock]: ${cmd}`, err);
+    await new Promise(r => setTimeout(r, 2500));
+    if (cmd === 'execute_search') {
+      return {
+        success: true,
+        platform: args?.platform || 'all',
+        raw_output: JSON.stringify([
+          {
+            id: 'mock-1', platform: 'x',
+            text: '🔴 Dev modu: Gerçek veriler için Tauri masaüstü uygulamasını kullanın.',
+            author: 'Media Research Dev', handle: '@mediaresearch',
+            date: new Date().toLocaleDateString('tr-TR'),
+            url: '#', metrics: [{ label: 'Beğeni', value: '42' }, { label: 'Yorum', value: '7' }]
+          }
+        ])
+      };
+    }
+    return { success: true };
   }
-  return { success: true };
 };
 import {
   Search,
