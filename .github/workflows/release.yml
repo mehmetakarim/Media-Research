@@ -1,0 +1,74 @@
+name: Release Media Research
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target universal-apple-darwin'
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Build Tauri Desktop Package (.dmg / .exe)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'Media Research v__VERSION__'
+          releaseBody: |
+            ## 🔴 Media Research v__VERSION__ Dağıtım Sürümü
+            
+            8 Sosyal Platformdan Sıfır Token Maliyetiyle Derin Veri Kazıma, Yapay Zeka Sentezi ve Profesyonel Raporlama Suite'i.
+
+            ### 📦 İndirme Seçenekleri:
+            - **macOS (Apple Silicon & Intel):** `.dmg` paketini indirip Uygulamalar klasörüne sürükleyin.
+            - **Windows (x64):** `.exe` / `.msi` kurulum sihirbazını indirip çalıştırın.
+            
+            ### ✨ Öne Çıkan Özellikler:
+            - 🔴 **Lenovo Red (#E2232A)** arayüz tasarımı
+            - ⚡ **8 Platform Eşzamanlı Derin Arama** (80 Zengin İçerik Havuzu)
+            - 💬 Gönderi bazlı **"AI Yorum"** ve Türkçe Çeviri
+            - 📊 **Canlı Duygu Durumu (Sentiment Bar)** ve Pazar Trend Analitiği
+            - 📄 **Lenovo Red PDF & Excel (.xlsx)** Dışa Aktarma Suite'i
+            - 🍪 **Tek Tıkla Tarayıcıdan Çerez Senkronizasyonu**
+            - 📈 **Trend ve Gündem** İlham Odası
+            - 🧠 **Çoklu Gemini Model Zinciri (Fallback Engine)**
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
