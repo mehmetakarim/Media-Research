@@ -361,7 +361,9 @@ fn extract_browser_cookies(browser: String) -> Result<String, String> {
 #[tauri::command]
 fn save_file_to_downloads(filename: String, base64_data: String) -> Result<String, String> {
     use std::fs;
+    use std::io::Write;
     use std::path::PathBuf;
+    use std::process::Stdio;
 
     let home_dir = std::env::var("HOME").or_else(|_| std::env::var("USERPROFILE")).map_err(|_| "Ev dizini bulunamadı".to_string())?;
     let downloads_dir = PathBuf::from(home_dir).join("Downloads");
@@ -372,29 +374,33 @@ fn save_file_to_downloads(filename: String, base64_data: String) -> Result<Strin
 
     let file_path = downloads_dir.join(&filename);
     
-    // Decode base64 or write directly
     let clean_b64 = if let Some(idx) = base64_data.find(",") {
         &base64_data[idx + 1..]
     } else {
         &base64_data
     };
 
-    // Use command line or standard decode
-    let decoded = match Command::new("python3")
+    // Safe writing using Python process with STDIN to avoid argument length limits
+    let mut child = Command::new("python3")
         .arg("-c")
-        .arg(format!("import base64; open(r'{}', 'wb').write(base64.b64decode('{}'))", file_path.to_string_lossy(), clean_b64.trim()))
-        .output() {
-            Ok(out) if out.status.success() => {
-                file_path.to_string_lossy().to_string()
-            },
-            _ => {
-                // Fallback: write text directly if not b64
-                fs::write(&file_path, base64_data.as_bytes()).map_err(|e| format!("Dosya yazılamadı: {}", e))?;
-                file_path.to_string_lossy().to_string()
-            }
-        };
+        .arg(format!("import sys, base64; open(r'{}', 'wb').write(base64.b64decode(sys.stdin.read().strip()))", file_path.to_string_lossy()))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("Python işlemi başlatılamadı: {}", e))?;
 
-    Ok(decoded)
+    if let Some(mut stdin) = child.stdin.take() {
+        stdin.write_all(clean_b64.as_bytes()).map_err(|e| format!("Veri yazılamadı: {}", e))?;
+    }
+
+    let output = child.wait_with_output().map_err(|e| format!("Dosya yazma işlemi tamamlanamadı: {}", e))?;
+
+    if output.status.success() && file_path.exists() {
+        Ok(file_path.to_string_lossy().to_string())
+    } else {
+        Err(format!("Dosya kaydedilemedi: {}", String::from_utf8_lossy(&output.stderr)))
+    }
 }
 
 #[tauri::command]

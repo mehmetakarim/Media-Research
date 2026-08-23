@@ -827,20 +827,31 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Generate PDF as base64 and save to Downloads directory via Tauri
-    const pdfBlob = await html2pdf().set(opt).from(element).output('datauristring');
+    // Generate PDF as Uint8Array byte array for 100% valid PDF binary
+    const worker = html2pdf().set(opt).from(element);
+    const pdfDoc = await worker.toPdf().get('pdf');
+    const pdfArrayBuffer = pdfDoc.output('arraybuffer');
     
+    // Convert ArrayBuffer to binary string
+    const bytes = new Uint8Array(pdfArrayBuffer);
+    let binary = '';
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const base64Data = btoa(binary);
+
     try {
       const savedPath = await invoke('save_file_to_downloads', {
         filename: safeFilename,
-        base64Data: pdfBlob
+        base64Data: base64Data
       });
-      showToast('PDF İndirildi', `PDF Raporu İndirilenler (Downloads) klasörüne kaydedildi:\n${savedPath}`, 'success');
+      showToast('PDF İndirildi', `PDF Raporu İndirilenler klasörüne kaydedildi:\n${savedPath}`, 'success');
       // Reveal in folder
       await invoke('show_in_folder', { path: savedPath });
     } catch (saveErr) {
-      // Fallback: browser save
-      await html2pdf().set(opt).from(element).save();
+      console.warn('Rust indirme klasörüne yazma hatası, tarayıcı kaydetme deneniyor:', saveErr);
+      await worker.save();
       showToast('PDF İndirildi', `"${safeFilename}" başarıyla indirildi!`, 'success');
     }
   } catch (err) {
