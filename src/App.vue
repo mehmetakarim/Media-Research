@@ -1,33 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { invoke as _tauriInvoke } from '@tauri-apps/api/core';
-
-// Evrensel invoke sarmalayıcısı — Tauri masaüstünde doğrudan Rust'ı çağırır,
-// tarayıcı önizlemesinde (localhost dev) hata fırlatıldığında mock veriye geçer.
-const invoke = async (cmd, args) => {
-  try {
-    return await _tauriInvoke(cmd, args);
-  } catch (err) {
-    console.warn(`[Tauri IPC Dev Mock]: ${cmd}`, err);
-    await new Promise(r => setTimeout(r, 2500));
-    if (cmd === 'execute_search') {
-      return {
-        success: true,
-        platform: args?.platform || 'all',
-        raw_output: JSON.stringify([
-          {
-            id: 'mock-1', platform: 'x',
-            text: '🔴 Dev modu: Gerçek veriler için Tauri masaüstü uygulamasını kullanın.',
-            author: 'Media Research Dev', handle: '@mediaresearch',
-            date: new Date().toLocaleDateString('tr-TR'),
-            url: '#', metrics: [{ label: 'Beğeni', value: '42' }, { label: 'Yorum', value: '7' }]
-          }
-        ])
-      };
-    }
-    return { success: true };
-  }
-};
+import { invoke } from '@tauri-apps/api/core';
 import {
   Search,
   Link,
@@ -606,11 +579,17 @@ const runSearch = async () => {
   await new Promise(r => setTimeout(r, 80));
 
   try {
-    const res = await invoke('execute_search', {
+    const searchPromise = invoke('execute_search', {
       platform: selectedPlatform.value === 'all' ? 'all' : selectedPlatform.value,
       query: searchQuery.value,
       limit: selectedPlatform.value === 'all' ? 5 : 10
     });
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Arama 15 saniye içinde tamamlanamadı veya Tauri bağlantısı kesildi.')), 15000)
+    );
+
+    const res = await Promise.race([searchPromise, timeoutPromise]);
 
     if (!isSearching.value) return; // İptal edildiyse işlemi yoksay
 
