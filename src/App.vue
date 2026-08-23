@@ -596,7 +596,13 @@ const runSearch = async () => {
     if (res.success) {
       let parsedList = [];
       try {
-        const parsedData = JSON.parse(res.raw_output);
+        let raw = (res.raw_output || '').trim();
+        const jsonStart = raw.indexOf('[');
+        const jsonEnd = raw.lastIndexOf(']');
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          raw = raw.substring(jsonStart, jsonEnd + 1);
+        }
+        const parsedData = JSON.parse(raw);
         if (Array.isArray(parsedData)) {
           parsedList = parsedData;
         }
