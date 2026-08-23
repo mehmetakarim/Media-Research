@@ -66,67 +66,19 @@ async fn run_doctor() -> Result<String, String> {
 async fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
     tauri::async_runtime::spawn_blocking(move || {
         let lim = limit.unwrap_or(10);
+        let prefix = format!("export PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH\" && cd \"{}\" && ./venv/bin/python3", PROJECT_DIR);
+        let q_esc = query.replace("\"", "\\\"");
         let cmd = match platform.as_str() {
-            "all" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/all_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "youtube" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/yt_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "instagram" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/ig_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "pinterest" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/pin_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "reddit" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/reddit_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "github" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/github_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "linkedin" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/linkedin_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "tiktok" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/tiktok_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "web" => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/web_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
-            "x" | "twitter" | _ => format!(
-                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/twitter_search.py \"{}\" {}",
-                PROJECT_DIR,
-                query.replace("\"", "\\\""),
-                lim
-            ),
+            "all" => format!("{} agent_reach/tools/all_search.py \"{}\" {}", prefix, q_esc, lim),
+            "youtube" => format!("{} agent_reach/tools/yt_search.py \"{}\" {}", prefix, q_esc, lim),
+            "instagram" => format!("{} agent_reach/tools/ig_search.py \"{}\" {}", prefix, q_esc, lim),
+            "pinterest" => format!("{} agent_reach/tools/pin_search.py \"{}\" {}", prefix, q_esc, lim),
+            "reddit" => format!("{} agent_reach/tools/reddit_search.py \"{}\" {}", prefix, q_esc, lim),
+            "github" => format!("{} agent_reach/tools/github_search.py \"{}\" {}", prefix, q_esc, lim),
+            "linkedin" => format!("{} agent_reach/tools/linkedin_search.py \"{}\" {}", prefix, q_esc, lim),
+            "tiktok" => format!("{} agent_reach/tools/tiktok_search.py \"{}\" {}", prefix, q_esc, lim),
+            "web" => format!("{} agent_reach/tools/web_search.py \"{}\" {}", prefix, q_esc, lim),
+            "x" | "twitter" | _ => format!("{} agent_reach/tools/twitter_search.py \"{}\" {}", prefix, q_esc, lim),
         };
 
         let output = Command::new("bash")
