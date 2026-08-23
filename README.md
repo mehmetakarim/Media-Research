@@ -1,63 +1,63 @@
-<h1 align="center">👁️ Agent Reach</h1>
+<h1 align="center">🔴 Media Research (Masaüstü Pazar İstihbarat & Sosyal Dinleme Suite)</h1>
 
 <p align="center">
-  <strong>Yapay Zeka (AI) Ajanınıza Tek Tıkla İnternet Yeteneği Kazandırın</strong>
+  <strong>8 Sosyal Platformdan Sıfır Token Maliyetiyle Derin Veri Kazıma, Yapay Zeka Sentezi ve Profesyonel Raporlama Suite'i</strong>
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.9+-green.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9+"></a>
-  <a href="https://github.com/Panniantong/agent-reach/stargazers"><img src="https://img.shields.io/github/stars/Panniantong/agent-reach?style=for-the-badge" alt="GitHub Stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-E2232A.svg?style=for-the-badge" alt="MIT License"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-181b22.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+"></a>
+  <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri_2.0-Rust-E2232A.svg?style=for-the-badge&logo=tauri&logoColor=white" alt="Tauri 2.0"></a>
+  <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue_3-Vite-42b883.svg?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue 3"></a>
+  <a href="https://github.com/mehmetakarim/Media-Research/stargazers"><img src="https://img.shields.io/github/stars/mehmetakarim/Media-Research?style=for-the-badge&color=E2232A" alt="GitHub Stars"></a>
 </p>
 
 <p align="center">
-  <a href="#hızlı-başlangıç">Hızlı Başlangıç</a> · <a href="docs/README_en.md">English</a> · <a href="#desteklenen-platformlar">Desteklenen Platformlar</a> · <a href="#tasarım-felsefesi">Tasarım Felsefesi</a>
+  <a href="#-öne-çıkan-yetenekler">Öne Çıkan Yetenekler</a> · <a href="#-hızlı-kurulum--çalıştırma">Hızlı Kurulum</a> · <a href="#-desteklenen-8-ana-platform">Desteklenen Platformlar</a> · <a href="#-raporlama--dışa-aktarma">Raporlama Suite</a>
 </p>
 
 ---
 
-## Neden Agent Reach'e İhtiyacınız Var?
+## 🌟 Neden Media Research?
 
-Yapay Zeka Ajanınız halihazırda sizin için kod yazabilir, belge düzenleyebilir veya proje yönetebilir — ancak ondan internette bir şeyler bulmasını istediğinizde genellikle tıkanır:
+Pazar araştırmacıları, ürün yöneticileri, büyüme ekipleri ve içerik üreticileri için internetteki topluluk geri bildirimlerini toplamak eskiden saatler sürerdi:
 
-- 📺 "Bu YouTube eğitim videosunun ne anlattığına bir bak" → **İzleyemez**, altyazıları çekemez.
-- 🐦 "Twitter'da insanlar bu ürün hakkında ne diyor araştır" → **Arayamaz**, Twitter API'si ücretlidir.
-- 📖 "Reddit'e gidip aynı sorunu (bug) yaşayan var mı bak" → **403 Hatası alır**, sunucu IP'si reddedilir.
-- 📕 "Bana Pinterest/Instagram (ör. Xiaohongshu) üzerinden bu ürünün yorumlarına bak" → **Açamaz**, giriş yapılması gerekir.
-- 🔍 "İnternette en son LLM framework karşılaştırmalarını araştır" → **İyi bir arama yeteneği yoktur**, ya ücretli araçlar gerekir ya da kalite düşüktür.
-- 🌐 "Bana bu web sayfasında ne yazdığını oku" → **Bir yığın HTML etiketi çeker** ve okuması imkansız hale gelir.
-- 📦 "Bu GitHub reposu ne işe yarıyor? Issue'larda ne yazıyor?" → Kısmen yapabilir, ancak kimlik doğrulama yapılandırmaları can sıkıcıdır.
-- 📡 "Bu birkaç RSS kaynağına abone ol, güncellenirse bana haber ver" → Bunun için sizin kütüphane kurup kod yazmanız gerekir.
+- 🐦 **Twitter/X:** Pahalı kurumsal API'ler olmadan doğrudan arama yapılamazdı.
+- 📺 **YouTube:** Video başlıkları, izlenmeler ve içerikler zahmetle tek tek incelenirdi.
+- 📸 **Instagram & Pinterest:** Çerezler ve oturum duvarları nedeniyle otomatik analiz zordu.
+- 💬 **Reddit & LinkedIn:** IP blokları ve karmaşık arayüzler yüzünden veriler dağınıktı.
 
-**Bunların yapılması zor değil, fakat sizin kurulum ve yapılandırma için çok uğraşmanız gerekir.**
+**Media Research**, tüm bu bariyerleri yerel CLI motorları (`bird`, `yt-dlp`, `jina-reader`) ve **Tauri + Rust + Vue 3** mimarisiyle sıfır token maliyetinde tek bir masaüstü kontrol merkezinde birleştirir!
 
-Her platformun kendine has engelleri vardır — ücretli API'ler, aşılması gereken engeller, giriş yapılması gereken hesaplar, temizlenmesi gereken veriler. Sırf ajanınıza bir tweet okutabilmek için hatalarla (bug) boğuşup, araçlar kurup saatlerinizi harcayabilirsiniz.
+---
 
-**Agent Reach, bu işi tek bir cümleye indirger:**
+## 🚀 Öne Çıkan Yetenekler
 
-```
-Agent Reach kurulumunu yap: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
-```
+### 1. ⚡ 8 Platform Eşzamanlı Derin Arama (80 Post / Çoklu Sentez)
+* **"Tümü"** seçildiğinde **Twitter/X, YouTube, Instagram, Pinterest, Reddit, GitHub, LinkedIn ve Web** platformları paralel iş parçacıklarıyla (`ThreadPoolExecutor`) asenkron olarak taranır.
+* 3-4 saniyede **80 zengin içerik** ekranda standartlaştırılmış biçimde hazır olur.
 
-Bunu kopyalayıp Ajanınıza gönderin, birkaç dakika içinde agent Twitter okumaya, Reddit'te gezinmeye, YouTube videoları izlemeye ve karmaşık sayfalarda arama yapmaya başlar!
+### 2. 💬 Post Kartlarında "AI Yorum" ve Tek Tıkla Türkçe Çeviri
+* Her gönderi kartında **"AI Yorum"** butonu: İlgili post için dikkat çekici, değer katan ve yüksek etkileşimli profesyonel bir yorum taslağı üretir.
+* **Türkçe Çevir:** Yabancı dildeki tweet, video veya makaleleri tek tıkla doğal Türkçe dil yapısına dönüştürür.
 
-**Zaten kurdunuz mu? Güncellemek de tek cümledir:**
+### 3. 📊 Canlı Duygu Durumu & Pazar Trend Analitiği (Sentiment Bar)
+* Toplanan verilerin **% Pozitif, % Nötr, % Negatif** dağılımını gösteren canlı duygu analiz göstergesi.
+* Gelişmiş filtreleme ve sıralama: *🔥 En Çok Beğenilenler*, *💬 En Çok Yorum Alanlar*, *🎬 Videolar*, *🖼️ Görseller*, *📄 Metinler*.
 
-```
-Agent Reach'i güncelle: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/update.md
-```
+### 4. 📄 Lenovo Red Temalı PDF & Excel / CSV Raporlama Suite'i
+* **Tek Tıkla PDF İndir:** AI pazar analizlerini, çıkarımları ve içerik taslaklarını kurumsal Lenovo Red (`#E2232A`) kapaklı A4 PDF formatında kaydetme.
+* **Excel Tablosu (.xlsx):** Akıştaki tüm içerikleri (Yazar, Metin, Metrikler, Duygu Durumu, URL) Excel tablosu olarak indirme.
 
-> ⭐ **Bu projeye yıldız (Star) verin!** Çeşitli platformlardaki değişiklikleri sürekli takip ediyor ve yeni kanallar ekliyoruz. Kendiniz takip etmek zorunda değilsiniz — bir platform erişimi engellerse biz düzeltiriz, yeni bir kanal çıkarsa biz ekleriz.
+### 5. 🍪 Tek Tıkla Tarayıcıdan Çerez Senkronizasyonu (Opsiyonel & Güvenli)
+* Chrome, Brave, Edge, Firefox veya Opera tarayıcınızdaki aktif oturum çerezlerini tek tuşla sisteme çeker.
+* Çerezlerini elle girmek isteyenler için **Manuel Düzenleyici** tamamen korunmuştur.
 
-### ✅ Kullanmadan Önce Bilmeniz Gerekenler
+### 6. 🔥 "Trend ve Gündem" İlham Odası
+* Yüksek gösterimli sektör trendleri, büyüme yüzdeleri (`+85%`) ve yapay zeka ile doğrudan trendlerden viral içerik fikirleri üretme köprüsü.
 
-| Özellik | Açıklama |
-|---|---|
-| 💰 **Tamamen Ücretsiz** | Tüm araçlar açık kaynak kodludur, tüm API'ler ücretsizdir. Olası tek masrafınız (eğer yerel bilgisayar yerine sunucuda kullanıyorsanız) sunucu vekleme yöneticisi için (aylık ~1$) proxy olabilir. |
-| 🔒 **Gizlilik ve Güvenlik** | Çerezler (Cookie) yalnızca yerel cihazınızda tutulur, dışarı aktarılmaz veya yüklenmez. Kod tamamen açık kaynaklıdır ve her an incelenebilir. |
-| 🔄 **Sürekli Güncelleme** | Altyapı araçları (yt-dlp, bird, Jina Reader vb.) düzenli olarak en son sürümüne güncellenir. Siz güncellemeleri kendi başınıza takip etmek zorunda kalmazsınız. |
-| 🤖 **Tüm Yapay Zeka Ajanlarıyla Uyumluluk** | Claude Code, OpenClaw, Cursor, Windsurf… Komut satırı (CLI) çalıştırabilen tüm ajanlarla kullanılabilir. |
-| 🩺 **Dahili Tanılama (Diagnostic)** | `agent-reach doctor` komutu size hangi eklentinin çalıştığını, hangisinin çalışmadığını ve nasıl düzeltebileceğinizi söyler. |
+### 7. 🧠 Çoklu Gemini Model Zinciri (Fallback Engine)
+* Seçtiğiniz modelde kota veya yoğunluk yaşandığında otomatik olarak sıradaki aktif modele geçer (`gemini-3.7-flash` ➔ `gemini-3.5-flash` ➔ `gemini-2.5-flash` ➔ `gemma-4-31b-it`). Kesinti yaşanmaz.
 
 ---
 
@@ -84,38 +84,36 @@ Agent Reach'i güncelle: https://raw.githubusercontent.com/Panniantong/agent-rea
 
 ---
 
-## Hızlı Başlangıç
+---
 
-Şu ifadeyi kopyalayıp Yapay Zeka Ajanınıza (Claude Code, OpenClaw, Cursor vs.) yapıştırın:
+## 💻 Masaüstü Uygulamasını Başlatma (Media Research UI)
 
+Media Research, hem güçlü bir Python CLI çekirdeğine hem de modern bir **Tauri + Rust + Vue 3** masaüstü arayüzüne sahiptir.
+
+### 🛠️ Gereksinimler:
+- **Node.js:** v18+
+- **Rust & Cargo:** (Tauri derleyicisi için)
+- **Python:** 3.10+ (sanal ortam ile)
+
+### 🚀 Geliştirici Modunda Başlatma:
+```bash
+# 1. Bağımlılıkları Yükleyin
+npm install
+
+# 2. Python Sanal Ortamını Hazırlayın
+python3 -m venv venv
+source venv/bin/activate
+pip install -e .
+
+# 3. Masaüstü Uygulamasını Başlatın
+npm run tauri dev
 ```
-Agent Reach kurulumunu yap: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+
+### 📦 Masaüstü Kurulum Paketini Derleme (Release Build):
+```bash
+npm run tauri build
 ```
-
-Hepsi bu kadar. Ajan geri kalan her şeyi kendi halledecektir.
-
-> 🔄 **Zaten Kurdunuz mu?** Güncellemek için tek satır yeterli:
-> ```
-> Agent Reach güncellemesi yap: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/update.md
-> ```
-
-> 🛡️ **Güvenlikten Endişeniz mi Var?** Güvenli modda (safe mode) yükleyebilirsiniz — Sistem paketlerini otomatik olarak kurmayacak, sadece size neye ihtiyaç duyduğunu önerecektir:
-> ```
-> Agent Reach (Güvenli Mod) kurulumunu yap: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
-> Kurulum sırasında --safe parametresini kullan
-> ```
-
-<details>
-<summary>Agent Arka Planda Neler Gerçekleştirecek? (Detaylar için tıklayın)</summary>
-
-1. **CLI Araçları Kurulumu** — Komut satırına `agent-reach` aracı kurulur.
-2. **Sistem Gereksinimleri** — Node.js, `gh CLI`, `mcporter`, `bird` vb. algılanır ve kurulur.
-3. **Arama Motorları Konfigürasyonu** — Exa.ai arama motoru MCP üzerinden ayarlanır (API anahtarı gerekmez).
-4. **Çevre (Ortam) Algılama** — Yerel bir bilgisayarda mı yoksa sunucuda mı olduğunuzu algılar ve tavsiye verir.
-5. **SKILL.md Eklemesi** — Ajanınızın ana dizinine "SKILL.md" dosyasını yazar, böylece bir dahaki sefere "Twitter'dan ara" dediğinizde aracı nasıl kullanması gerektiğini otomatik okur/öğrenir.
-
-Yüklendikten sonra `agent-reach doctor` komutu ile sistemin anlık çalışabilirlik durumunu test edebilirsiniz.
-</details>
+Derlenen `.dmg` (macOS), `.msi` (Windows) veya `.AppImage` (Linux) paketini doğrudan kurup tek tıkla kullanabilirsiniz.
 
 ---
 
