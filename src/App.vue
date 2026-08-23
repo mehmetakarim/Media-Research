@@ -827,41 +827,63 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
 
     const safeFilename = `${cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}.pdf`;
 
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: safeFilename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+    // Native jsPDF HTML Vector Renderer with Selectable Text
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4'
+    });
 
-    // Generate PDF as Uint8Array byte array for 100% valid PDF binary
-    const worker = html2pdf().set(opt).from(element);
-    const pdfDoc = await worker.toPdf().get('pdf');
-    const pdfArrayBuffer = pdfDoc.output('arraybuffer');
-    
-    // Convert ArrayBuffer to binary string
-    const bytes = new Uint8Array(pdfArrayBuffer);
-    let binary = '';
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const base64Data = btoa(binary);
+    // Mount to DOM with visibility and fixed z-index behind UI so html2canvas + jsPDF text layer can read metrics properly
+    element.style.position = 'absolute';
+    element.style.top = '0';
+    element.style.left = '0';
+    element.style.zIndex = '-9999';
+    element.style.opacity = '1';
+    element.style.pointerEvents = 'none';
+    document.body.appendChild(element);
 
-    try {
-      const savedPath = await invoke('save_file_to_downloads', {
-        filename: safeFilename,
-        base64Data: base64Data
-      });
-      showToast('PDF İndirildi', `PDF Raporu İndirilenler klasörüne kaydedildi:\n${savedPath}`, 'success');
-      await invoke('show_in_folder', { path: savedPath });
-    } catch (saveErr) {
-      console.warn('Rust indirme klasörüne yazma hatası, tarayıcı kaydetme deneniyor:', saveErr);
-      await worker.save();
-      showToast('PDF İndirildi', `"${safeFilename}" başarıyla indirildi!`, 'success');
-    }
+    await doc.html(element, {
+      callback: async function (pdf) {
+        if (document.body.contains(element)) {
+          document.body.removeChild(element);
+        }
+
+        const pdfArrayBuffer = pdf.output('arraybuffer');
+        
+        // Convert ArrayBuffer to binary base64
+        const bytes = new Uint8Array(pdfArrayBuffer);
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64Data = btoa(binary);
+
+        try {
+          const savedPath = await invoke('save_file_to_downloads', {
+            filename: safeFilename,
+            base64Data: base64Data
+          });
+          showToast('PDF İndirildi', `PDF Raporu İndirilenler klasörüne kaydedildi:\n${savedPath}`, 'success');
+          await invoke('show_in_folder', { path: savedPath });
+        } catch (saveErr) {
+          console.warn('Rust kayıt hatası, tarayıcı indiriliyor:', saveErr);
+          pdf.save(safeFilename);
+          showToast('PDF İndirildi', `"${safeFilename}" başarıyla indirildi!`, 'success');
+        }
+      },
+      x: 20,
+      y: 20,
+      width: 555, // A4 printable width in points (595 - 40 margin)
+      windowWidth: 680,
+      autoPaging: 'text',
+      html2canvas: {
+        scale: 1.5,
+        useCORS: true,
+        logging: false
+      }
+    });
   } catch (err) {
     console.error('PDF oluşturma hatası:', err);
     showToast('PDF Hatası', `PDF oluşturulamadı: ${err.message || err}`, 'error');
