@@ -358,6 +358,72 @@ fn extract_browser_cookies(browser: String) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+fn save_file_to_downloads(filename: String, base64_data: String) -> Result<String, String> {
+    use std::fs;
+    use std::path::PathBuf;
+
+    let home_dir = std::env::var("HOME").or_else(|_| std::env::var("USERPROFILE")).map_err(|_| "Ev dizini bulunamadı".to_string())?;
+    let downloads_dir = PathBuf::from(home_dir).join("Downloads");
+    
+    if !downloads_dir.exists() {
+        let _ = fs::create_dir_all(&downloads_dir);
+    }
+
+    let file_path = downloads_dir.join(&filename);
+    
+    // Decode base64 or write directly
+    let clean_b64 = if let Some(idx) = base64_data.find(",") {
+        &base64_data[idx + 1..]
+    } else {
+        &base64_data
+    };
+
+    // Use command line or standard decode
+    let decoded = match Command::new("python3")
+        .arg("-c")
+        .arg(format!("import base64; open(r'{}', 'wb').write(base64.b64decode('{}'))", file_path.to_string_lossy(), clean_b64.trim()))
+        .output() {
+            Ok(out) if out.status.success() => {
+                file_path.to_string_lossy().to_string()
+            },
+            _ => {
+                // Fallback: write text directly if not b64
+                fs::write(&file_path, base64_data.as_bytes()).map_err(|e| format!("Dosya yazılamadı: {}", e))?;
+                file_path.to_string_lossy().to_string()
+            }
+        };
+
+    Ok(decoded)
+}
+
+#[tauri::command]
+fn show_in_folder(path: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg("-R")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Klasör açılamadı: {}", e))?;
+    }
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("explorer")
+            .arg(format!("/select,{}", path))
+            .spawn()
+            .map_err(|e| format!("Klasör açılamadı: {}", e))?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        Command::new("xdg-open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| format!("Klasör açılamadı: {}", e))?;
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -371,7 +437,9 @@ pub fn run() {
             generate_ai_summary,
             fetch_gemini_models,
             translate_text,
-            extract_browser_cookies
+            extract_browser_cookies,
+            save_file_to_downloads,
+            show_in_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

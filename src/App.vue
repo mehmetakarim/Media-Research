@@ -44,10 +44,13 @@ import {
   Eye as EyeIconEye,
   MessageSquareQuote,
   Clock,
-  Flame
+  Flame,
+  FolderOpen,
+  FileDown
 } from 'lucide-vue-next';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
+import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
 
 // View State
@@ -745,98 +748,101 @@ const exportFeedToExcel = () => {
   showToast('Excel İndirildi', `"${fileName}" başarıyla cihazınıza kaydedildi!`, 'success');
 };
 
-// 3. LENOVO RED THEMED PDF EXPORT FUNCTION
-const exportReportToPdf = (reportTitle, markdownContent) => {
-  showToast('PDF Hazırlanıyor', 'Lenovo Red temalı PDF raporu oluşturuluyor...', 'info');
+// 3. LENOVO RED THEMED RICH PDF EXPORT FUNCTION (KUSURSUZ TÜRKÇE VE GÖRSEL MİMARİ)
+const exportReportToPdf = async (reportTitle, markdownContent) => {
+  showToast('PDF Hazırlanıyor', 'Rapor Lenovo Red temalı şık PDF formatına dönüştürülüyor...', 'info');
 
   try {
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const primaryRed = [226, 35, 42]; // #E2232A
-    const darkBg = [24, 27, 34];
-    const textDark = [30, 41, 59];
-    const grayText = [100, 116, 139];
-
-    // Header Bar (Lenovo Red Brand Banner)
-    doc.setFillColor(primaryRed[0], primaryRed[1], primaryRed[2]);
-    doc.rect(0, 0, 210, 18, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MEDIA RESEARCH · SOSYAL İSTİHBARAT & PAZAR RAPORU', 14, 12);
-
-    // Title Section
-    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(reportTitle || 'Pazar Trend ve Medya Analiz Raporu', 14, 30);
-
-    // Metadata Bar
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+    const renderedHtml = renderMarkdown(markdownContent || reportTitle);
     const dateStr = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    doc.text(`Tarih: ${dateStr}  |  Model: ${geminiModel.value}  |  Kaynak: Media Research Yerel Motoru`, 14, 37);
+    const cleanTitle = reportTitle || 'Pazar Trend ve Medya Analiz Raporu';
 
-    // Divider
-    doc.setDrawColor(226, 35, 42);
-    doc.setLineWidth(0.5);
-    doc.line(14, 41, 196, 41);
+    // Rich Printable HTML Template Container with embedded modern styling
+    const element = document.createElement('div');
+    element.style.width = '794px'; // Standard A4 width in px at 96 DPI
+    element.style.padding = '0';
+    element.style.margin = '0 auto';
+    element.style.backgroundColor = '#ffffff';
+    element.style.color = '#1e293b';
+    element.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    element.style.boxSizing = 'border-box';
 
-    // Content Parsing
-    doc.setFontSize(10);
-    doc.setTextColor(51, 65, 85);
-    doc.setFont('helvetica', 'normal');
+    element.innerHTML = `
+      <div style="background-color: #ffffff; padding: 32px 36px;">
+        <!-- Header Banner (Lenovo Red) -->
+        <div style="background: linear-gradient(135deg, #E2232A 0%, #b91c1c 100%); color: #ffffff; padding: 18px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(226, 35, 42, 0.2);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">MEDIA RESEARCH</div>
+            <div style="font-size: 11px; opacity: 0.9; font-family: monospace;">SOSYAL İSTİHBARAT & PAZAR RAPORU</div>
+          </div>
+        </div>
 
-    // Clean markdown headings for clean rendering
-    const plainLines = (markdownContent || '')
-      .replace(/###/g, '')
-      .replace(/##/g, '')
-      .replace(/#/g, '')
-      .replace(/\*\*/g, '')
-      .replace(/\*/g, '')
-      .split('\n');
+        <!-- Title and Metadata Section -->
+        <div style="border-bottom: 2px solid #E2232A; padding-bottom: 14px; margin-bottom: 24px;">
+          <h1 style="font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; line-height: 1.3;">${cleanTitle}</h1>
+          <div style="display: flex; gap: 16px; font-size: 11px; color: #64748b; font-family: monospace;">
+            <span>📅 Tarih: <strong style="color: #334155;">${dateStr}</strong></span>
+            <span>🤖 Model: <strong style="color: #E2232A;">${geminiModel.value}</strong></span>
+            <span>⚡ Kaynak: <strong style="color: #334155;">Media Research Yerel Motoru</strong></span>
+          </div>
+        </div>
 
-    let yPosition = 48;
-    const pageHeight = 280;
+        <!-- Rich Markdown Body -->
+        <div class="pdf-content-body" style="font-size: 13px; line-height: 1.7; color: #334155;">
+          ${renderedHtml}
+        </div>
 
-    plainLines.forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        yPosition += 4;
-        return;
-      }
+        <!-- Footer -->
+        <div style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; font-family: monospace;">
+          <span>Media Research · Sıfır Token Yerel Kazıma & AI İstihbarat Platformu</span>
+          <span>Gizli & Kurumsal Rapor</span>
+        </div>
+      </div>
 
-      if (yPosition > pageHeight) {
-        doc.addPage();
-        // Red sub-header on new page
-        doc.setFillColor(primaryRed[0], primaryRed[1], primaryRed[2]);
-        doc.rect(0, 0, 210, 8, 'F');
-        yPosition = 18;
-      }
+      <style>
+        .pdf-content-body h1 { font-size: 18px; font-weight: 700; color: #0f172a; border-left: 4px solid #E2232A; padding-left: 10px; margin: 20px 0 10px 0; }
+        .pdf-content-body h2 { font-size: 16px; font-weight: 700; color: #0f172a; border-left: 3px solid #E2232A; padding-left: 8px; margin: 18px 0 8px 0; }
+        .pdf-content-body h3 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 14px 0 6px 0; }
+        .pdf-content-body p { margin: 0 0 12px 0; }
+        .pdf-content-body ul, .pdf-content-body ol { margin: 0 0 14px 0; padding-left: 20px; }
+        .pdf-content-body li { margin-bottom: 4px; }
+        .pdf-content-body blockquote { background: #f8fafc; border-left: 3px solid #E2232A; margin: 12px 0; padding: 10px 14px; color: #475569; font-style: italic; border-radius: 4px; }
+        .pdf-content-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px; }
+        .pdf-content-body th { background: #fee2e2; color: #991b1b; text-align: left; padding: 8px 10px; border: 1px solid #fecaca; font-weight: 600; }
+        .pdf-content-body td { padding: 8px 10px; border: 1px solid #e2e8f0; }
+        .pdf-content-body tr:nth-child(even) td { background: #f8fafc; }
+        .pdf-content-body strong { color: #0f172a; }
+        .pdf-content-body code { background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #b91c1c; }
+        .pdf-content-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 20px 0; }
+      </style>
+    `;
 
-      const splitText = doc.splitTextToSize(trimmed, 182);
-      doc.text(splitText, 14, yPosition);
-      yPosition += (splitText.length * 5) + 2;
-    });
+    const safeFilename = `${cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}.pdf`;
 
-    // Footer
-    const totalPages = doc.getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-      doc.text(`Sayfa ${i} / ${totalPages} · Media Research Yerel İstihbarat Raporu`, 14, 290);
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: safeFilename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Generate PDF as base64 and save to Downloads directory via Tauri
+    const pdfBlob = await html2pdf().set(opt).from(element).output('datauristring');
+    
+    try {
+      const savedPath = await invoke('save_file_to_downloads', {
+        filename: safeFilename,
+        base64Data: pdfBlob
+      });
+      showToast('PDF İndirildi', `PDF Raporu İndirilenler (Downloads) klasörüne kaydedildi:\n${savedPath}`, 'success');
+      // Reveal in folder
+      await invoke('show_in_folder', { path: savedPath });
+    } catch (saveErr) {
+      // Fallback: browser save
+      await html2pdf().set(opt).from(element).save();
+      showToast('PDF İndirildi', `"${safeFilename}" başarıyla indirildi!`, 'success');
     }
-
-    const safeFilename = `${(reportTitle || 'Rapor').toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}.pdf`;
-    doc.save(safeFilename);
-    showToast('PDF İndirildi', `"${safeFilename}" başarıyla indirildi!`, 'success');
   } catch (err) {
     console.error('PDF oluşturma hatası:', err);
     showToast('PDF Hatası', `PDF oluşturulamadı: ${err.message || err}`, 'error');
