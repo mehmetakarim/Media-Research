@@ -781,9 +781,8 @@ const exportReportToPdf = async (reportTitle, markdownContent) => {
         <!-- Title and Metadata Section -->
         <div style="border-bottom: 2px solid #E2232A; padding-bottom: 12px; margin-bottom: 20px;">
           <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; line-height: 1.3;">${cleanTitle}</h1>
-          <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 10.5px; color: #64748b; font-family: monospace;">
+          <div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 10.5px; color: #64748b; font-family: monospace;">
             <span>📅 Tarih: <strong style="color: #334155;">${dateStr}</strong></span>
-            <span>🤖 Model: <strong style="color: #E2232A;">${geminiModel.value}</strong></span>
             <span>⚡ Kaynak: <strong style="color: #334155;">Media Research Yerel Motoru</strong></span>
           </div>
         </div>
