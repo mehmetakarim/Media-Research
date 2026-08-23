@@ -233,3 +233,5 @@ if __name__ == "__main__":
     lim = int(sys.argv[2]) if len(sys.argv) > 2 else 6
     results = search_reddit(q, lim)
     print(json.dumps(results, ensure_ascii=False))
+    sys.stdout.flush()
+    os._exit(0)

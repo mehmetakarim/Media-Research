@@ -59,9 +59,11 @@ def search_all_platforms(query, per_platform=4):
         t.join(timeout=remaining)
 
     return all_results
-
+ 
 if __name__ == "__main__":
     q = sys.argv[1] if len(sys.argv) > 1 else "3d yazıcı"
     count = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     results = search_all_platforms(q, count)
     print(json.dumps(results, ensure_ascii=False))
+    sys.stdout.flush()
+    os._exit(0)
