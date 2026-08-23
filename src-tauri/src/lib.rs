@@ -66,24 +66,27 @@ async fn run_doctor() -> Result<String, String> {
 async fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
     tauri::async_runtime::spawn_blocking(move || {
         let lim = limit.unwrap_or(10);
-        let prefix = format!("export PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH\" && cd \"{}\" && ./venv/bin/python3", PROJECT_DIR);
-        let q_esc = query.replace("\"", "\\\"");
-        let cmd = match platform.as_str() {
-            "all" => format!("{} agent_reach/tools/all_search.py \"{}\" {}", prefix, q_esc, lim),
-            "youtube" => format!("{} agent_reach/tools/yt_search.py \"{}\" {}", prefix, q_esc, lim),
-            "instagram" => format!("{} agent_reach/tools/ig_search.py \"{}\" {}", prefix, q_esc, lim),
-            "pinterest" => format!("{} agent_reach/tools/pin_search.py \"{}\" {}", prefix, q_esc, lim),
-            "reddit" => format!("{} agent_reach/tools/reddit_search.py \"{}\" {}", prefix, q_esc, lim),
-            "github" => format!("{} agent_reach/tools/github_search.py \"{}\" {}", prefix, q_esc, lim),
-            "linkedin" => format!("{} agent_reach/tools/linkedin_search.py \"{}\" {}", prefix, q_esc, lim),
-            "tiktok" => format!("{} agent_reach/tools/tiktok_search.py \"{}\" {}", prefix, q_esc, lim),
-            "web" => format!("{} agent_reach/tools/web_search.py \"{}\" {}", prefix, q_esc, lim),
-            "x" | "twitter" | _ => format!("{} agent_reach/tools/twitter_search.py \"{}\" {}", prefix, q_esc, lim),
+        let python_bin = format!("{}/venv/bin/python3", PROJECT_DIR);
+        let script = match platform.as_str() {
+            "all" => format!("{}/agent_reach/tools/all_search.py", PROJECT_DIR),
+            "youtube" => format!("{}/agent_reach/tools/yt_search.py", PROJECT_DIR),
+            "instagram" => format!("{}/agent_reach/tools/ig_search.py", PROJECT_DIR),
+            "pinterest" => format!("{}/agent_reach/tools/pin_search.py", PROJECT_DIR),
+            "reddit" => format!("{}/agent_reach/tools/reddit_search.py", PROJECT_DIR),
+            "github" => format!("{}/agent_reach/tools/github_search.py", PROJECT_DIR),
+            "linkedin" => format!("{}/agent_reach/tools/linkedin_search.py", PROJECT_DIR),
+            "tiktok" => format!("{}/agent_reach/tools/tiktok_search.py", PROJECT_DIR),
+            "web" => format!("{}/agent_reach/tools/web_search.py", PROJECT_DIR),
+            "x" | "twitter" | _ => format!("{}/agent_reach/tools/twitter_search.py", PROJECT_DIR),
         };
 
-        let output = Command::new("bash")
-            .arg("-c")
-            .arg(&cmd)
+        let output = Command::new(&python_bin)
+            .arg(&script)
+            .arg(&query)
+            .arg(lim.to_string())
+            .current_dir(PROJECT_DIR)
+            .env("PYTHONPATH", PROJECT_DIR)
+            .env("PATH", "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin")
             .output()
             .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
 
