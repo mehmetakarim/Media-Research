@@ -1208,12 +1208,12 @@ onMounted(() => {
     </div>
 
     <!-- SOL SIDEBAR (MENÜ) -->
-    <aside class="w-[240px] flex-shrink-0 flex flex-col bg-[#0e1015] border-r border-[#262a35]">
+    <aside class="w-[260px] flex-shrink-0 flex flex-col bg-[#0e1015] border-r border-[#262a35]">
       <!-- Marka Kiti Yatay Logo Kilidi (SVG Vector) -->
-      <div class="p-[18px_16px_14px]">
+      <div class="p-[18px_20px_14px]">
         <div class="flex items-center gap-2.5">
           <!-- Yatay Marka Kiti Logosu -->
-          <svg class="h-[28px] w-auto" viewBox="0 0 1336 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="h-[30px] w-auto max-w-full" viewBox="0 0 1336 240" fill="none" xmlns="http://www.w3.org/2000/svg">
             <!-- Dış Halka -->
             <circle cx="120" cy="120" r="117.3" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="6"/>
             <!-- Kalın Tarama Halkası -->
@@ -1237,7 +1237,7 @@ onMounted(() => {
       </div>
 
       <!-- Menü Öğeleri -->
-      <nav class="flex flex-col gap-1 px-2.5">
+      <nav class="flex flex-col gap-1 px-3">
         <button
           v-for="nav in navItems"
           :key="nav.id"
@@ -1249,9 +1249,9 @@ onMounted(() => {
               : 'text-[#94a3b8] hover:bg-[#15181f] hover:text-[#f1f5f9]'
           ]"
         >
-          <component :is="nav.icon" class="w-4 h-4 text-current" :stroke-width="1.9" />
-          <span class="flex-1">{{ nav.label }}</span>
-          <span v-if="nav.count" class="font-mono text-[10px] text-[#fca5a5] bg-[rgba(226,35,42,0.16)] px-1.5 py-0.5 rounded">{{ nav.count }}</span>
+          <component :is="nav.icon" class="w-4 h-4 text-current flex-shrink-0" :stroke-width="1.9" />
+          <span class="flex-1 whitespace-nowrap">{{ nav.label }}</span>
+          <span v-if="nav.count" class="font-mono text-[10px] text-[#fca5a5] bg-[rgba(226,35,42,0.16)] px-1.5 py-0.5 rounded flex-shrink-0">{{ nav.count }}</span>
         </button>
       </nav>
 
