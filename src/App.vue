@@ -1209,14 +1209,25 @@ onMounted(() => {
 
     <!-- SOL SIDEBAR (MENÜ) -->
     <aside class="w-[240px] flex-shrink-0 flex flex-col bg-[#0e1015] border-r border-[#262a35]">
-      <!-- Logo ve Başlık -->
-      <div class="flex items-center gap-2.5 p-[18px_18px_16px]">
-        <div class="w-[32px] h-[32px] rounded-[10px] bg-gradient-to-br from-[#E2232A] to-[#b91c1c] grid place-items-center shadow-[0_4px_14px_rgba(226,35,42,0.35)]">
-          <Zap class="w-[18px] h-[18px] text-white" :stroke-width="2.3" />
+      <!-- Marka Kiti Yatay Logo Kilidi (SVG Vector) -->
+      <div class="p-[18px_16px_14px]">
+        <div class="flex items-center gap-2.5">
+          <!-- Yatay Marka Kiti Logosu -->
+          <svg class="h-[28px] w-auto" viewBox="0 0 1336 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Dış Halka -->
+            <circle cx="120" cy="120" r="117.3" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="6"/>
+            <!-- Kalın Tarama Halkası -->
+            <circle cx="120" cy="120" r="85.8" fill="none" stroke="#E2232A" stroke-width="24"/>
+            <!-- Merkez Hedef Nokta -->
+            <circle cx="120" cy="120" r="31.2" fill="#E2232A"/>
+            <!-- MediaResearch Tipografi -->
+            <text x="300" y="170" font-family="'Helvetica Now Display','Helvetica Neue',Inter,Arial,sans-serif" font-size="142" font-weight="600">
+              <tspan fill="#F1F4F9">Media</tspan><tspan fill="#8D94A3">Research</tspan>
+            </text>
+          </svg>
         </div>
-        <div class="leading-tight">
-          <div class="font-semibold tracking-[-0.2px] text-[14px]">Media Research</div>
-          <div class="font-mono text-[10px] text-[#64748b] mt-0.5">Masaüstü · Yerel Motor</div>
+        <div class="font-mono text-[9.5px] text-[#5C6373] mt-1.5 pl-0.5 tracking-wider uppercase">
+          Masaüstü · Yerel İstihbarat
         </div>
       </div>
 

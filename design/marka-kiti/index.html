@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Media Research — Marka Logo Kullanım Kiti v1.0</title>
+<style>
+  :root{
+    --red:#E2232A; --red-halo:rgba(226,35,42,.55); --red-deep:#B31A20;
+    --carbon:#12141A; --c800:#1A1D26; --c700:#22262F; --hair:#2A2F3A;
+    --ice:#F1F4F9; --steel:#8D94A3; --dim:#5C6373;
+    --sans:'Helvetica Now Display','Helvetica Neue',Inter,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',SFMono-Regular,Menlo,'JetBrains Mono','Roboto Mono',monospace;
+    --pad:clamp(20px,5vw,72px);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--carbon); color:var(--ice);
+    font-family:var(--sans); font-weight:400; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--ice)}
+
+  /* ---------- yapı ---------- */
+  .wrap{max-width:1120px;margin:0 auto;padding:0 var(--pad)}
+  section{border-top:1px solid var(--hair);padding:clamp(44px,7vw,88px) 0}
+  section:first-of-type{border-top:0}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--dim);margin:0 0 22px;display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--red);flex:none}
+  h2{
+    font-size:clamp(24px,3.4vw,34px);font-weight:500;letter-spacing:-.02em;
+    margin:0 0 10px;line-height:1.15;
+  }
+  .lede{color:var(--steel);max-width:62ch;margin:0 0 38px;font-size:15.5px}
+  h3{font-size:14px;font-weight:500;letter-spacing:.01em;margin:0 0 6px}
+  p{margin:0 0 12px}
+  .note{font-size:13.5px;color:var(--steel)}
+  code{font-family:var(--mono);font-size:.9em;color:var(--ice);background:var(--c700);
+    padding:2px 6px;border-radius:4px;border:1px solid var(--hair)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:clamp(56px,9vw,120px) 0 clamp(44px,7vw,80px)}
+  .hero-mark{display:block;width:clamp(112px,17vw,168px);height:auto;margin:0 0 40px}
+  .hero h1{
+    font-size:clamp(34px,6.4vw,68px);font-weight:500;letter-spacing:-.035em;
+    line-height:1.02;margin:0 0 20px;
+  }
+  .hero h1 em{font-style:normal;color:var(--steel)}
+  .hero .lede{font-size:clamp(15px,1.7vw,18px);max-width:54ch;margin-bottom:34px}
+  .meta{display:flex;flex-wrap:wrap;gap:0 34px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+    border-top:1px solid var(--hair);padding-top:18px}
+  .meta b{color:var(--steel);font-weight:400}
+
+  @keyframes ping{
+    0%   {r:46.5px;opacity:.85;stroke-width:26px}
+    70%  {opacity:0}
+    100% {r:186px;opacity:0;stroke-width:4px}
+  }
+  .ping{fill:none;stroke:var(--red);animation:ping 3.4s cubic-bezier(.2,.6,.3,1) infinite}
+  .ping.b{animation-delay:1.7s}
+  @media (prefers-reduced-motion:reduce){.ping{display:none}}
+
+  /* ---------- ızgaralar ---------- */
+  .grid{display:grid;gap:2px;background:var(--hair);border:1px solid var(--hair)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .cell{background:var(--c800);padding:26px}
+  .cell.pale{background:#F1F4F9;color:var(--carbon)}
+  .cell.deep{background:var(--carbon)}
+  .cell.red{background:var(--red)}
+  .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--dim);margin:0 0 18px}
+  .cell.pale .tag{color:#6B7280}
+  .cell.red .tag{color:rgba(255,255,255,.7)}
+  .stage{display:flex;align-items:center;justify-content:center;min-height:118px;margin-bottom:16px}
+  .stage img,.stage svg{max-width:100%;height:auto}
+
+  /* ---------- renk ---------- */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:2px;
+    background:var(--hair);border:1px solid var(--hair)}
+  .sw{padding:0;background:var(--c800)}
+  .chip{height:96px;border-bottom:1px solid var(--hair)}
+  .sw .body{padding:16px 18px 20px}
+  .sw h3{margin-bottom:4px}
+  .hex{font-family:var(--mono);font-size:12px;color:var(--steel);letter-spacing:.04em}
+  .use{font-size:12.5px;color:var(--dim);margin:8px 0 0;line-height:1.45}
+
+  /* ---------- tablolar ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--hair);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--dim);font-weight:400}
+  td:first-child{color:var(--ice)}
+  td{color:var(--steel)}
+  tr:last-child td{border-bottom:0}
+  .num{font-family:var(--mono);color:var(--ice);font-size:12.5px}
+
+  /* ---------- yanlış kullanım ---------- */
+  .dont .cell{padding:20px}
+  .dont .stage{min-height:96px;margin-bottom:14px}
+  .dont h3{color:var(--ice);font-size:13px}
+  .dont p{font-size:12.5px;color:var(--dim);margin:4px 0 0;line-height:1.45}
+  .x{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--red);
+    position:relative;vertical-align:-3px;margin-right:8px;flex:none}
+  .x::before,.x::after{content:"";position:absolute;left:4px;top:7.5px;width:8px;height:1.5px;
+    background:#fff}
+  .x::before{transform:rotate(45deg)}.x::after{transform:rotate(-45deg)}
+  .dont h3{display:flex;align-items:flex-start}
+
+  /* ---------- kod ---------- */
+  pre{background:var(--c800);border:1px solid var(--hair);border-radius:6px;
+    padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;
+    line-height:1.7;color:var(--steel);margin:0 0 20px}
+  pre .k{color:var(--ice)}
+  pre .r{color:var(--red)}
+
+  /* ---------- denetim ---------- */
+  .audit{display:grid;gap:2px;background:var(--hair);border:1px solid var(--hair)}
+  .item{background:var(--c800);padding:22px 26px;display:grid;
+    grid-template-columns:44px 1fr;gap:0 20px;align-items:start}
+  .idx{font-family:var(--mono);font-size:11px;color:var(--red);letter-spacing:.08em;padding-top:3px}
+  .item h3{margin-bottom:7px;font-size:14.5px}
+  .item p{font-size:13.5px;color:var(--steel);margin:0}
+  .item p + p{margin-top:8px;color:var(--dim);font-size:13px}
+
+  /* ---------- ayak ---------- */
+  footer{border-top:1px solid var(--hair);padding:44px 0 72px;color:var(--dim);font-size:13px}
+  footer .files{font-family:var(--mono);font-size:12px;line-height:2;color:var(--steel)}
+  footer .files span{color:var(--dim)}
+
+  @media (max-width:760px){
+    .g3,.g4{grid-template-columns:repeat(2,1fr)}
+    .meta{gap:0 22px}
+  }
+  @media (max-width:520px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .item{grid-template-columns:1fr;gap:6px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <svg class="hero-mark" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research ikonu">
+    <circle class="ping" cx="256" cy="256" r="46.5"/>
+    <circle class="ping b" cx="256" cy="256" r="46.5"/>
+    <circle cx="256" cy="256" r="175" fill="none" stroke="var(--red)" stroke-opacity=".55" stroke-width="8"/>
+    <circle cx="256" cy="256" r="128" fill="none" stroke="var(--red)" stroke-width="35"/>
+    <circle cx="256" cy="256" r="46.5" fill="var(--red)"/>
+  </svg>
+
+  <h1>Media<em>Research</em><br>marka logo<br>kullanım kiti</h1>
+  <p class="lede">Bu doküman markanın tek doğruluk kaynağıdır: işaretin geometrisi, güvenli alanı,
+  renk token'ları ve izin verilen kullanım biçimleri. Ölçülerin tamamı tedarik edilen
+  <code>logo-ikon.png</code> ve <code>yatay-logo.png</code> dosyalarından çıkarıldı.</p>
+
+  <div class="meta">
+    <span>Sürüm <b>1.0</b></span>
+    <span>Ürün <b>Media Research Suite</b></span>
+    <span>Depo <b>mehmetakarim/Media-Research</b></span>
+    <span>Birim <b>C = büyük harf yüksekliği</b></span>
+  </div>
+</section>
+
+<!-- ═══════════════ 01 LOGO SİSTEMİ ═══════════════ -->
+<section>
+  <p class="eyebrow">01 — Logo sistemi</p>
+  <h2>Dört varyant, tek geometri</h2>
+  <p class="lede">Yatay kilit varsayılandır. İkon yalnızca marka zaten kurulmuşken (uygulama ikonu,
+  favicon, sosyal avatar, imza öğesi) tek başına kullanılır.</p>
+
+  <div class="grid g2">
+    <div class="cell">
+      <p class="tag">A · Yatay kilit — birincil</p>
+      <div class="stage">
+        <svg viewBox="0 0 1336 240" width="420" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="120" cy="120" r="117.3" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="5.4"/>
+          <circle cx="120" cy="120" r="85.8" fill="none" stroke="#E2232A" stroke-width="23.5"/>
+          <circle cx="120" cy="120" r="31.2" fill="#E2232A"/>
+          <text x="315" y="170" font-family="'Helvetica Now Display','Helvetica Neue',Inter,Arial,sans-serif" font-size="137.5" font-weight="500"><tspan fill="#F1F4F9">Media</tspan><tspan fill="#8D94A3">Research</tspan></text>
+        </svg>
+      </div>
+      <h3>mr-logo-horizontal.svg</h3>
+      <p class="note">Web başlığı, README kapağı, sunum kapağı, uygulama karşılama ekranı.</p>
+    </div>
+
+    <div class="cell">
+      <p class="tag">B · İkon — işaret</p>
+      <div class="stage">
+        <svg viewBox="0 0 512 512" width="130" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+          <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+          <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
+        </svg>
+      </div>
+      <h3>mr-icon.svg · mr-icon-tile.svg</h3>
+      <p class="note">Uygulama ikonu, sistem tepsisi, avatar, dar alanlar. Karo sürümünde işaret
+      tuvalin %70'ini kaplar.</p>
+    </div>
+
+    <div class="cell pale">
+      <p class="tag">C · Tek renk koyu — açık zemin</p>
+      <div class="stage">
+        <svg viewBox="0 0 1336 240" width="380" xmlns="http://www.w3.org/2000/svg">
+          <g fill="#1A1D26">
+            <circle cx="120" cy="120" r="117.3" fill="none" stroke="#1A1D26" stroke-opacity=".45" stroke-width="5.4"/>
+            <circle cx="120" cy="120" r="85.8" fill="none" stroke="#1A1D26" stroke-width="23.5"/>
+            <circle cx="120" cy="120" r="31.2"/>
+            <text x="315" y="170" font-family="'Helvetica Now Display','Helvetica Neue',Inter,Arial,sans-serif" font-size="137.5" font-weight="500">MediaResearch</text>
+          </g>
+        </svg>
+      </div>
+      <h3 style="color:#1A1D26">mr-logo-horizontal-mono-dark.svg</h3>
+      <p class="note" style="color:#6B7280">Faturalar, tek renk baskı, gravür, damga, açık zeminli belgeler.</p>
+    </div>
+
+    <div class="cell deep">
+      <p class="tag">D · Tek renk açık — koyu zemin</p>
+      <div class="stage">
+        <svg viewBox="0 0 1336 240" width="380" xmlns="http://www.w3.org/2000/svg">
+          <g fill="#F1F4F9">
+            <circle cx="120" cy="120" r="117.3" fill="none" stroke="#F1F4F9" stroke-opacity=".45" stroke-width="5.4"/>
+            <circle cx="120" cy="120" r="85.8" fill="none" stroke="#F1F4F9" stroke-width="23.5"/>
+            <circle cx="120" cy="120" r="31.2"/>
+            <text x="315" y="170" font-family="'Helvetica Now Display','Helvetica Neue',Inter,Arial,sans-serif" font-size="137.5" font-weight="500">MediaResearch</text>
+          </g>
+        </svg>
+      </div>
+      <h3>mr-logo-horizontal-mono-light.svg</h3>
+      <p class="note">Fotoğraf üzeri, video alt bilgisi, sponsor şeritleri, kırmızının çakıştığı yerler.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 02 YAPI ═══════════════ -->
+<section>
+  <p class="eyebrow">02 — Yapı</p>
+  <h2>İşaret üç eşmerkezli daireden kurulur</h2>
+  <p class="lede">Radar atımı: dış halka sinyalin çevresi, kalın halka tarama alanı, merkez nokta
+  hedef. Tüm yarıçaplar 512 birimlik tuvale göre sabittir — yeniden çizmeyin, ölçekleyin.</p>
+
+  <div class="grid g2">
+    <div class="cell">
+      <p class="tag">Yapı çizimi</p>
+      <svg viewBox="0 0 512 512" width="100%" style="max-width:400px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
+          <circle cx="0" cy="0" r="1" fill="#2A2F3A"/></pattern></defs>
+        <rect width="512" height="512" fill="url(#dots)"/>
+        <line x1="256" y1="0" x2="256" y2="512" stroke="#2A2F3A" stroke-width="1"/>
+        <line x1="0" y1="256" x2="512" y2="256" stroke="#2A2F3A" stroke-width="1"/>
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
+        <g stroke="#8D94A3" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="256" y1="256" x2="256" y2="81"/>
+          <line x1="256" y1="256" x2="437" y2="256"/>
+        </g>
+        <g font-family="ui-monospace,Menlo,monospace" font-size="15" fill="#F1F4F9">
+          <text x="268" y="140">r 175 · 8</text>
+          <text x="268" y="196">r 128 · 35</text>
+          <text x="268" y="243">r 46.5</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="cell" style="padding:0">
+      <table>
+        <thead><tr><th>Öğe</th><th>Yarıçap</th><th>Kalınlık</th><th>Opaklık</th></tr></thead>
+        <tbody>
+          <tr><td>Dış halka</td><td class="num">175</td><td class="num">8</td><td class="num">55 %</td></tr>
+          <tr><td>Tarama halkası</td><td class="num">128</td><td class="num">35</td><td class="num">100 %</td></tr>
+          <tr><td>Merkez nokta</td><td class="num">46.5</td><td class="num">dolu</td><td class="num">100 %</td></tr>
+          <tr><td>İşaret çapı</td><td class="num" colspan="3">358 birim (tuvalin %70'i)</td></tr>
+        </tbody>
+      </table>
+      <div style="padding:22px 16px 4px">
+        <h3>Oransal karşılıklar</h3>
+        <p class="note">İşaret yüksekliği S olmak üzere: dış halka çapı <b style="color:var(--ice);font-weight:400">1.00 S</b>,
+        tarama halkası dış çapı <b style="color:var(--ice);font-weight:400">0.82 S</b>,
+        merkez nokta çapı <b style="color:var(--ice);font-weight:400">0.26 S</b>. Bu üç oran korunduğu sürece
+        işaret her boyutta doğrudur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 03 KİLİT VE GÜVENLİ ALAN ═══════════════ -->
+<section>
+  <p class="eyebrow">03 — Kilit ve güvenli alan</p>
+  <h2>Ölçü birimi C: büyük harf yüksekliği</h2>
+  <p class="lede">Yatay kilitteki her mesafe kelime markasının büyük harf yüksekliğine bağlıdır.
+  Punto değiştiğinde tüm sistem birlikte ölçeklenir; hiçbir mesafe piksel olarak sabitlenmez.</p>
+
+  <div class="grid g2">
+    <div class="cell">
+      <p class="tag">Kilit ölçüleri</p>
+      <svg viewBox="-40 -60 1420 360" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="-30" width="1336" height="300" fill="none" stroke="#2A2F3A" stroke-dasharray="5 5"/>
+        <circle cx="120" cy="120" r="117.3" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="5.4"/>
+        <circle cx="120" cy="120" r="85.8" fill="none" stroke="#E2232A" stroke-width="23.5"/>
+        <circle cx="120" cy="120" r="31.2" fill="#E2232A"/>
+        <text x="315" y="170" font-family="'Helvetica Now Display','Helvetica Neue',Inter,Arial,sans-serif" font-size="137.5" font-weight="500"><tspan fill="#F1F4F9">Media</tspan><tspan fill="#8D94A3">Research</tspan></text>
+        <g stroke="#8D94A3" stroke-width="1.5">
+          <line x1="237" y1="290" x2="315" y2="290"/>
+          <line x1="237" y1="278" x2="237" y2="302"/>
+          <line x1="315" y1="278" x2="315" y2="302"/>
+          <line x1="290" y1="70" x2="290" y2="170"/>
+          <line x1="278" y1="70" x2="302" y2="70"/>
+          <line x1="278" y1="170" x2="302" y2="170"/>
+          <line x1="0" y1="-45" x2="240" y2="-45"/>
+          <line x1="0" y1="-57" x2="0" y2="-33"/>
+          <line x1="240" y1="-57" x2="240" y2="-33"/>
+        </g>
+        <g font-family="ui-monospace,Menlo,monospace" font-size="30" fill="#F1F4F9">
+          <text x="200" y="-58">2.40 C</text>
+          <text x="196" y="336">0.75 C</text>
+          <text x="318" y="52" fill="#8D94A3">C</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="cell">
+      <p class="tag">Güvenli alan · X = C</p>
+      <svg viewBox="-40 -40 1420 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <rect x="-100" y="-100" width="1540" height="440" fill="#22262F"/>
+        <rect x="0" y="20" width="1336" height="200" fill="#1A1D26"/>
+        <circle cx="120" cy="120" r="117.3" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="5.4"/>
+        <circle cx="120" cy="120" r="85.8" fill="none" stroke="#E2232A" stroke-width="23.5"/>
+        <circle cx="120" cy="120" r="31.2" fill="#E2232A"/>
+        <text x="315" y="170" font-family="'Helvetica Now Display','Helvetica Neue',Inter,Arial,sans-serif" font-size="137.5" font-weight="500"><tspan fill="#F1F4F9">Media</tspan><tspan fill="#8D94A3">Research</tspan></text>
+        <rect x="0" y="20" width="1336" height="200" fill="none" stroke="#E2232A" stroke-width="2" stroke-dasharray="8 6"/>
+        <g font-family="ui-monospace,Menlo,monospace" font-size="34" fill="#8D94A3">
+          <text x="1352" y="130">X</text>
+          <text x="655" y="-6">X</text>
+        </g>
+      </svg>
+      <h3 style="margin-top:18px">Hiçbir şey X'in içine giremez</h3>
+      <p class="note">Metin, çizgi, kenarlık, fotoğraf kenarı, başka bir logo — hiçbiri. X = bir büyük harf
+      yüksekliği. Tek başına ikonda X = merkez noktanın çapı (işaret yüksekliğinin %26'sı).</p>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:2px">
+    <div class="cell">
+      <p class="tag">Minimum boyut · ekran</p>
+      <h3>Yatay kilit 160 px genişlik</h3>
+      <p class="note">Altında büyük harf yüksekliği 12 px'in altına düşer ve "Research" okunmaz olur.</p>
+    </div>
+    <div class="cell">
+      <p class="tag">Minimum boyut · ikon</p>
+      <h3>24 px / 8 mm</h3>
+      <p class="note">24 px altında dış halka 0.4 px'e iner ve kaybolur. 16–20 px için favicon
+      sürümünü kullanın: dış halka atılmış, tarama halkası kalınlaştırılmıştır.</p>
+    </div>
+    <div class="cell">
+      <p class="tag">Minimum boyut · baskı</p>
+      <h3>Kilit 30 mm genişlik</h3>
+      <p class="note">Tek renk baskıda dış halkanın %55 opaklığı tram olarak basılamaz — tek renk
+      varyantlarında %45 açık tona sabitlenmiştir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 04 RENK ═══════════════ -->
+<section>
+  <p class="eyebrow">04 — Renk</p>
+  <h2>Bir kırmızı, dört karbon, iki metin tonu</h2>
+  <p class="lede">Kırmızı yalnızca işaret, vurgu ve tek bir birincil eylem içindir. Arayüzde
+  kırmızı oranı toplam alanın %10'unu geçtiğinde uyarı rengi olarak okunmaya başlar.</p>
+
+  <div class="swatches">
+    <div class="sw">
+      <div class="chip" style="background:#E2232A"></div>
+      <div class="body"><h3>Signal Red</h3><p class="hex">#E2232A · rgb(226 35 42)</p>
+      <p class="use">İşaret, birincil eylem, aktif durum, rozet vurgusu.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#1A1D26;position:relative">
+        <div style="position:absolute;inset:0;background:#E2232A;opacity:.55"></div>
+      </div>
+      <div class="body"><h3>Signal Red 55</h3><p class="hex">rgba(226 35 42 / .55)</p>
+      <p class="use">Yalnızca dış halka. Başka hiçbir yerde kullanılmaz.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#B31A20"></div>
+      <div class="body"><h3>Signal Red Deep</h3><p class="hex">#B31A20</p>
+      <p class="use">Basılı ve hover durumu, kırmızı üzerine kırmızı ayrım.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#12141A"></div>
+      <div class="body"><h3>Carbon</h3><p class="hex">#12141A</p>
+      <p class="use">En koyu zemin, uygulama arka planı.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#1A1D26"></div>
+      <div class="body"><h3>Carbon 800</h3><p class="hex">#1A1D26</p>
+      <p class="use">Logo zemini, panel, kart grubu. Ölçülen marka zemini.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#22262F"></div>
+      <div class="body"><h3>Carbon 700</h3><p class="hex">#22262F</p>
+      <p class="use">Yükseltilmiş yüzey, girdi alanı, hover zemini.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#F1F4F9"></div>
+      <div class="body"><h3>Ice</h3><p class="hex">#F1F4F9</p>
+      <p class="use">Birincil metin ve "Media" hecesi. Saf beyaz kullanılmaz.</p></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#8D94A3"></div>
+      <div class="body"><h3>Steel</h3><p class="hex">#8D94A3</p>
+      <p class="use">İkincil metin, "Research" hecesi, etiket ve ölçü yazıları.</p></div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:2px">
+    <div class="cell">
+      <p class="tag">Kontrast</p>
+      <h3>Kırmızı, metin rengi değildir</h3>
+      <p class="note">#E2232A üzerinde #F1F4F9 kontrastı 4.0:1 — normal gövde metni için AA'yı geçmez.
+      Kırmızı zeminde yalnızca 18 px üstü veya kalın metin kullanın.</p>
+    </div>
+    <div class="cell">
+      <p class="tag">Renk adı</p>
+      <h3>"Lenovo Red" adını token'lardan çıkarın</h3>
+      <p class="note">README bu tonu üçüncü bir markanın kurumsal rengiyle adlandırıyor. Ton doğru,
+      ad riskli. Kod ve dokümanda <code>signal-red</code> olarak geçmeli.</p>
+    </div>
+    <div class="cell">
+      <p class="tag">Ölçüm notu</p>
+      <h3>Rasterde #E8232D okunuyor</h3>
+      <p class="note">PNG'lerde yumuşatma ve hafif parlaklık katmanı var. Kanonik değer README'deki
+      <code>#E2232A</code>'dır; vektörler bu değerle üretildi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 05 TİPOGRAFİ ═══════════════ -->
+<section>
+  <p class="eyebrow">05 — Tipografi</p>
+  <h2>Nötr grotesk, iki tonlu tek kelime</h2>
+  <p class="lede">Kelime markası boşluksuz tek kelimedir: <b style="font-weight:500">MediaResearch</b>.
+  Ayrım boşlukla değil renkle yapılır — "Media" Ice, "Research" Steel.</p>
+
+  <div class="grid g2">
+    <div class="cell" style="padding:0">
+      <table>
+        <thead><tr><th>Rol</th><th>Yazı tipi</th><th>Ağırlık</th></tr></thead>
+        <tbody>
+          <tr><td>Kelime markası</td><td>Helvetica Now Display<br><span style="color:var(--dim)">alternatif: Helvetica Neue</span></td><td class="num">Medium 500</td></tr>
+          <tr><td>Açık kaynak karşılık</td><td>Inter</td><td class="num">Medium 500</td></tr>
+          <tr><td>Arayüz</td><td>Inter</td><td class="num">400 / 500 / 600</td></tr>
+          <tr><td>Ölçü ve kod</td><td>JetBrains Mono</td><td class="num">400 / 500</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cell">
+      <p class="tag">Ölçülen değerler</p>
+      <h3>x‑yüksekliği / büyük harf = 0.72</h3>
+      <p class="note" style="margin-bottom:16px">Bu oran Helvetica ailesine işaret ediyor; Inter'de 0.75'tir.
+      Inter'e geçilirse kelime markası orijinalinden yaklaşık %12 daha geniş çıkar — kilit oranları
+      (2.40 C / 0.75 C) korunduğu sürece sorun değildir, ama iki farklı fonttan üretilmiş iki logo
+      dosyası aynı anda dolaşıma girmemelidir.</p>
+      <h3>Harf aralığı 0 (sıfır)</h3>
+      <p class="note">Kelime markasında ek harf aralığı yok. Yeniden yazmayın; üretim dosyasında
+      yazı outline'a çevrilmiş olmalıdır ki font eksikliğinde kilit bozulmasın.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 06 ZEMİN ═══════════════ -->
+<section>
+  <p class="eyebrow">06 — Zemin</p>
+  <h2>Onaylı zeminler</h2>
+  <p class="lede">Logo koyu zemin için tasarlandı. Açık ve renkli zeminlerde tek renk varyantına geçin.</p>
+
+  <div class="grid g4">
+    <div class="cell deep">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#E2232A"/></svg></div>
+      <h3>Carbon üzeri renkli</h3>
+      <p class="note">Tercih edilen kullanım.</p>
+    </div>
+    <div class="cell pale">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#E2232A"/></svg></div>
+      <h3 style="color:#1A1D26">Ice üzeri renkli</h3>
+      <p class="note" style="color:#6B7280">İzinli. Dış halka soluklaşır, kabul edilir.</p>
+    </div>
+    <div class="cell red">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#F1F4F9">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#F1F4F9" stroke-opacity=".45" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#F1F4F9" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5"/></g></svg></div>
+      <h3 style="color:#fff">Kırmızı üzeri açık</h3>
+      <p class="note" style="color:rgba(255,255,255,.75)">Kırmızı zeminde yalnızca tek renk açık.</p>
+    </div>
+    <div class="cell" style="background:linear-gradient(120deg,#2b3242,#4a5568 60%,#1d2430)">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#F1F4F9">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#F1F4F9" stroke-opacity=".45" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#F1F4F9" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5"/></g></svg></div>
+      <h3>Fotoğraf üzeri</h3>
+      <p class="note">Tek renk açık + görselin sakin bir bölgesi. Gerekirse %40 koyu katman ekleyin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 07 YANLIŞ KULLANIM ═══════════════ -->
+<section class="dont">
+  <p class="eyebrow">07 — Yanlış kullanım</p>
+  <h2>Yapmayın</h2>
+  <p class="lede">İşaret üç daireden oluşuyor; tam da bu yüzden bozulması kolay ve bariz.</p>
+
+  <div class="grid g4">
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(256,256) scale(1.35,0.72) translate(-256,-256)">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#E2232A"/></g></svg></div>
+      <h3><span class="x"></span>Esnetmeyin</h3>
+      <p>Daireler daire kalır. Oran kilidi her zaman açık.</p>
+    </div>
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#3DDC84" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#3DDC84" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#3DDC84"/></svg></div>
+      <h3><span class="x"></span>Rengi değiştirmeyin</h3>
+      <p>Signal Red, Ice veya Carbon dışında renk yok.</p>
+    </div>
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="bad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#FF8A3D"/><stop offset="1" stop-color="#C7176F"/></linearGradient></defs>
+        <circle cx="256" cy="256" r="175" fill="none" stroke="url(#bad)" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="url(#bad)" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="url(#bad)"/></svg></div>
+      <h3><span class="x"></span>Degrade uygulamayın</h3>
+      <p>İşaret düz renktir. Parlama, metalik, cam efekti yok.</p>
+    </div>
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <g transform="rotate(28 256 256)">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <ellipse cx="256" cy="256" rx="70" ry="46.5" fill="#E2232A"/></g></svg></div>
+      <h3><span class="x"></span>Geometriyi bozmayın</h3>
+      <p>Halka kalınlığı, yarıçap oranı ve merkez nokta yeniden çizilmez.</p>
+    </div>
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#sh)"><defs><filter id="sh" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000" flood-opacity=".9"/></filter></defs>
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#E2232A"/></g></svg></div>
+      <h3><span class="x"></span>Gölge eklemeyin</h3>
+      <p>Dış çizgi, kabartma, iç gölge, glow — hiçbiri.</p>
+    </div>
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 640 240" width="150" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="150" font-family="Georgia,serif" font-size="120" font-style="italic" fill="#F1F4F9">Media</text>
+        <text x="330" y="150" font-family="Georgia,serif" font-size="120" font-style="italic" fill="#8D94A3">Research</text>
+      </svg></div>
+      <h3><span class="x"></span>Yazıyı değiştirmeyin</h3>
+      <p>Farklı font, eğik yazı, boşluk ekleme veya "Media Research" ayrı yazımı olmaz.</p>
+    </div>
+    <div class="cell">
+      <div class="stage"><svg viewBox="0 0 700 300" width="160" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="350" cy="70" r="58" fill="none" stroke="#E2232A" stroke-width="16"/>
+        <circle cx="350" cy="70" r="21" fill="#E2232A"/>
+        <text x="350" y="230" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="86" font-weight="500" fill="#F1F4F9">Media<tspan fill="#8D94A3">Research</tspan></text>
+      </svg></div>
+      <h3><span class="x"></span>Kilidi yeniden dizmeyin</h3>
+      <p>Dikey kilit henüz tanımlı değil. İhtiyaç varsa bu kite eklenerek üretilir.</p>
+    </div>
+    <div class="cell">
+      <div class="stage" style="background:repeating-linear-gradient(45deg,#7a3a3a 0 14px,#3a4a7a 14px 28px);border-radius:4px">
+        <svg viewBox="0 0 512 512" width="76" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/>
+        <circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/>
+        <circle cx="256" cy="256" r="46.5" fill="#E2232A"/></svg></div>
+      <h3><span class="x"></span>Meşgul zemine koymayın</h3>
+      <p>Desenli veya kırmızıya yakın zeminde tek renk açık varyanta geçin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 08 UYGULAMA ═══════════════ -->
+<section>
+  <p class="eyebrow">08 — Uygulama</p>
+  <h2>Depo, uygulama ve web</h2>
+  <p class="lede">Aynı işaretin üç farklı üretim hattı: README kapağı, Tauri paket ikonları, tarayıcı ikonu.</p>
+
+  <h3 style="margin:0 0 12px">README kapağı — emoji yerine gerçek logo</h3>
+  <pre>&lt;<span class="k">p align</span>=<span class="r">"center"</span>&gt;
+  &lt;<span class="k">img src</span>=<span class="r">"assets/mr-logo-horizontal.svg"</span> <span class="k">alt</span>=<span class="r">"Media Research"</span> <span class="k">width</span>=<span class="r">"420"</span>&gt;
+&lt;/p&gt;
+
+&lt;<span class="k">p align</span>=<span class="r">"center"</span>&gt;
+  &lt;<span class="k">strong</span>&gt;8 sosyal platformdan derin veri kazıma, yapay zeka sentezi ve raporlama&lt;/<span class="k">strong</span>&gt;
+&lt;/p&gt;</pre>
+  <p class="note" style="margin:-6px 0 34px">Başlıktaki 🔴 emojisini kaldırın — işaretin yerini tutuyor ve
+  platformdan platforma farklı bir kırmızıyla çiziliyor. Rozetlerde <code>E2232A</code> ve
+  <code>181B22</code> zaten doğru; <code>181B22</code>'yi <code>1A1D26</code> ile değiştirerek logo
+  zeminiyle birebir aynı yapabilirsiniz.</p>
+
+  <h3 style="margin:0 0 12px">Tauri paket ikonları</h3>
+  <pre><span class="k">npx</span> tauri icon assets/mr-icon-tile-1024.png</pre>
+  <p class="note" style="margin:-6px 0 34px">Kaynak 1024×1024 karo sürüm olmalı — şeffaf zeminli
+  ikon macOS'ta köşe yarıçapını kaybettirir. Komut <code>32x32.png</code>, <code>128x128.png</code>,
+  <code>128x128@2x.png</code>, <code>icon.icns</code>, <code>icon.ico</code> ve Windows Square
+  setinin tamamını üretir.</p>
+
+  <h3 style="margin:0 0 12px">Web ikonları</h3>
+  <pre>&lt;<span class="k">link rel</span>=<span class="r">"icon"</span> <span class="k">href</span>=<span class="r">"/mr-favicon.svg"</span> <span class="k">type</span>=<span class="r">"image/svg+xml"</span>&gt;
+&lt;<span class="k">link rel</span>=<span class="r">"apple-touch-icon"</span> <span class="k">href</span>=<span class="r">"/mr-icon-tile-180.png"</span>&gt;
+&lt;<span class="k">meta name</span>=<span class="r">"theme-color"</span> <span class="k">content</span>=<span class="r">"#12141A"</span>&gt;</pre>
+
+  <div class="grid g4" style="margin-top:20px">
+    <div class="cell"><p class="tag">16 px</p><div class="stage" style="min-height:60px">
+      <svg viewBox="0 0 32 32" width="16" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="7" fill="#1A1D26"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#E2232A" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="#E2232A"/></svg></div>
+      <p class="note">favicon</p></div>
+    <div class="cell"><p class="tag">32 px</p><div class="stage" style="min-height:60px">
+      <svg viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="7" fill="#1A1D26"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#E2232A" stroke-width="3"/><circle cx="16" cy="16" r="3" fill="#E2232A"/></svg></div>
+      <p class="note">favicon</p></div>
+    <div class="cell"><p class="tag">64 px</p><div class="stage" style="min-height:60px">
+      <svg viewBox="0 0 512 512" width="64" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#1A1D26"/><circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/><circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/><circle cx="256" cy="256" r="46.5" fill="#E2232A"/></svg></div>
+      <p class="note">tam ikon</p></div>
+    <div class="cell"><p class="tag">128 px</p><div class="stage" style="min-height:60px">
+      <svg viewBox="0 0 512 512" width="104" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#1A1D26"/><circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".55" stroke-width="8"/><circle cx="256" cy="256" r="128" fill="none" stroke="#E2232A" stroke-width="35"/><circle cx="256" cy="256" r="46.5" fill="#E2232A"/></svg></div>
+      <p class="note">uygulama ikonu</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ 09 DENETİM ═══════════════ -->
+<section>
+  <p class="eyebrow">09 — README marka denetimi</p>
+  <h2>Kit uygulanmadan önce çözülmesi gerekenler</h2>
+  <p class="lede">Mevcut README'de logo kurallarından bağımsız, marka tutarlılığını doğrudan
+  zedeleyen bulgular var. Sıralama önem derecesine göre.</p>
+
+  <div class="audit">
+    <div class="item">
+      <span class="idx">01</span>
+      <div>
+        <h3>Ürün iki farklı adla anılıyor</h3>
+        <p>Başlık, rozetler ve özellik bölümleri <b style="color:var(--ice);font-weight:400">Media Research</b>
+        derken; "Tasarım Felsefesi", "Güvenlik Politikası" ve kaldırma bölümleri baştan sona
+        <b style="color:var(--ice);font-weight:400">Agent Reach</b> diyor. CLI komutları
+        <code>agent-reach install</code> / <code>uninstall</code>, yapılandırma yolu
+        <code>~/.agent-reach/</code>, PR bağlantısı ise <code>Panniantong/agent-reach</code> deposuna gidiyor.</p>
+        <p>Bir marka kiti bu ikiliği çözemez — önce hangisinin ürün adı, hangisinin altyapı katmanı
+        olduğuna karar verin. İkisi de kalacaksa ilişkiyi açıkça yazın; yoksa tek isme indirin ve
+        yabancı depoya giden bağlantıyı düzeltin.</p>
+      </div>
+    </div>
+    <div class="item">
+      <span class="idx">02</span>
+      <div>
+        <h3>Renk üçüncü bir markanın adıyla anılıyor</h3>
+        <p>"Lenovo Red Temalı PDF" ve "kurumsal Lenovo Red (#E2232A) kapaklı" ifadeleri, kendi
+        renginizi başka bir şirketin kurumsal rengi olarak tanımlıyor. Ton sizin kalabilir; ad
+        <code>Signal Red</code> olmalı.</p>
+      </div>
+    </div>
+    <div class="item">
+      <span class="idx">03</span>
+      <div>
+        <h3>Üstteki gezinme bağlantılarının üçü kırık</h3>
+        <p><code>#-desteklenen-8-ana-platform</code> hedefi yok — başlık "Desteklenen Platformlar".
+        <code>#-raporlama--dışa-aktarma</code> ve <code>#-hızlı-kurulum--çalıştırma</code> için de
+        eşleşen başlık bulunmuyor. Başlıkları bağlantılara göre yeniden adlandırın veya tersini yapın.</p>
+      </div>
+    </div>
+    <div class="item">
+      <span class="idx">04</span>
+      <div>
+        <h3>Model adları doğrulanmalı</h3>
+        <p>Fallback zinciri <code>gemini-3.7-flash ➔ gemini-3.5-flash ➔ gemini-2.5-flash ➔
+        gemma-4-31b-it</code> olarak yazılmış. Bu adlar sağlayıcının güncel kataloğuyla birebir
+        eşleşmiyorsa README yayınlandığı gün eskir — sürüm numarası vermek yerine "otomatik yedek
+        model zinciri" demek daha güvenli.</p>
+      </div>
+    </div>
+    <div class="item">
+      <span class="idx">05</span>
+      <div>
+        <h3>Emoji, ikonun işini yapıyor</h3>
+        <p>H1'deki 🔴 ve bölüm başlıklarındaki emojiler her platformda farklı bir kırmızı ve farklı
+        bir biçimle çiziliyor. Kapakta gerçek logo, bölüm başlıklarında ise emojisiz düz başlık
+        kullanın — tutarlılık buradan başlar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p style="margin-bottom:20px;color:var(--steel)">Kit içeriği</p>
+  <div class="files">
+    <span>index.html</span> — bu doküman<br>
+    <span>tokens.css</span> · <span>tokens.json</span> — renk ve ölçü değişkenleri<br>
+    <span>assets/mr-logo-horizontal.svg</span> — birincil yatay kilit<br>
+    <span>assets/mr-logo-horizontal-mono-light.svg</span> · <span>-mono-dark.svg</span><br>
+    <span>assets/mr-icon.svg</span> — şeffaf zeminli işaret<br>
+    <span>assets/mr-icon-tile.svg</span> — köşesi yuvarlatılmış uygulama ikonu<br>
+    <span>assets/mr-icon-mono-light.svg</span> · <span>-mono-dark.svg</span><br>
+    <span>assets/mr-favicon.svg</span> — 16–32 px sadeleştirilmiş
+  </div>
+  <p style="margin-top:26px;max-width:70ch;line-height:1.7">
+    SVG'lerdeki kelime markası canlı metin olarak duruyor; üretim öncesi yazıyı outline'a çevirin.
+    İşaret geometrisi tedarik edilen PNG'lerden piksel ölçümüyle çıkarıldı ve tam vektör olarak
+    yeniden kuruldu — orijinal kaynak dosyada farklı bir değer varsa o kazanır, kite geri bildirin.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

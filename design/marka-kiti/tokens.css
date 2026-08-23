@@ -1,0 +1,31 @@
+/* Media Research — marka renk ve ölçü token'ları
+   Sürüm 1.0 · Kaynak: logo-ikon.png, yatay-logo.png, README.md */
+
+:root {
+  /* Ana renk */
+  --mr-signal-red:      #E2232A;  /* Birincil marka kırmızısı */
+  --mr-signal-red-halo: rgba(226, 35, 42, .55); /* Dış halka */
+  --mr-signal-red-deep: #B31A20;  /* Basılı/hover koyu ton */
+
+  /* Zemin */
+  --mr-carbon:      #12141A;  /* En koyu zemin */
+  --mr-carbon-800:  #1A1D26;  /* Logo zemini, panel */
+  --mr-carbon-700:  #22262F;  /* Kart, yüzey */
+  --mr-hairline:    #2A2F3A;  /* Ayraç çizgi */
+
+  /* Tipografi */
+  --mr-ice:    #F1F4F9;  /* Birincil metin — "Media" */
+  --mr-steel:  #8D94A3;  /* İkincil metin — "Research" */
+
+  /* Geometri (ikon 512 birimlik tuval) */
+  --mr-icon-halo-r:      175px;
+  --mr-icon-halo-stroke:   8px;
+  --mr-icon-ring-r:      128px;
+  --mr-icon-ring-stroke:  35px;
+  --mr-icon-dot-r:      46.5px;
+
+  /* Kilit oranları — C = büyük harf yüksekliği */
+  --mr-lockup-mark-height: 2.40;  /* × C */
+  --mr-lockup-gap:         0.75;  /* × C */
+  --mr-lockup-clearspace:  1.00;  /* × C */
+}
