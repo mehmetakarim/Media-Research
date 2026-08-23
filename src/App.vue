@@ -579,6 +579,11 @@ const runSearch = async () => {
   items.value = []; // Arama başladığında önceki sonuçları temizle ki radar animasyonu ekranda parlasın
   showToast('Arama Başlatıldı', `"${searchQuery.value}" için yerel arama yapılıyor...`, 'info');
 
+  // Vue DOM güncellemesinin tamamlanmasını bekle, ardından 80ms boşluk bırak
+  // Bu sayede radar animasyonu ekranda görünür, uygulama donmuş hissettirmez
+  await nextTick();
+  await new Promise(r => setTimeout(r, 80));
+
   try {
     const res = await invoke('execute_search', {
       platform: selectedPlatform.value === 'all' ? 'all' : selectedPlatform.value,
@@ -1531,10 +1536,22 @@ onMounted(() => {
             <div v-if="isSearching" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
               <div class="relative w-[200px] h-[200px] flex items-center justify-center">
                 <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research Radar Tarayıcı">
-                  <!-- Ping halkaları: r=175 (maks boyut), scale(0.18→1) ile merkezdenmış gibi yayılır -->
-                  <circle class="radar-ping" cx="256" cy="256" r="175" stroke-width="6"/>
-                  <circle class="radar-ping delay-1" cx="256" cy="256" r="175" stroke-width="6"/>
-                  <circle class="radar-ping delay-2" cx="256" cy="256" r="175" stroke-width="6"/>
+                  <!-- Ping halkaları: SVG SMIL native animasyon (WebKit/Tauri uyumlu) -->
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                  </circle>
                   <!-- Sabit Dış Sinyal Çemberi -->
                   <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".35" stroke-width="6"/>
                   <!-- Kalın Tarama Halkası -->
@@ -1830,9 +1847,21 @@ onMounted(() => {
             <div v-if="isUrlLoading" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
               <div class="relative w-[200px] h-[200px] flex items-center justify-center">
                 <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research URL Ayrıştırma">
-                  <circle class="radar-ping" cx="256" cy="256" r="175" stroke-width="6"/>
-                  <circle class="radar-ping delay-1" cx="256" cy="256" r="175" stroke-width="6"/>
-                  <circle class="radar-ping delay-2" cx="256" cy="256" r="175" stroke-width="6"/>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                  </circle>
                   <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".35" stroke-width="6"/>
                   <circle cx="256" cy="256" r="126" fill="none" stroke="#E2232A" stroke-width="30"/>
                   <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
@@ -1961,9 +1990,21 @@ onMounted(() => {
             <div v-if="isAssistantGenerating" class="p-10 border border-[#262a35] bg-[#181b22] rounded-3xl flex flex-col items-center justify-center gap-4 my-6 shadow-2xl animate-fade">
               <div class="relative w-[200px] h-[200px] flex items-center justify-center">
                 <svg class="w-[200px] h-[200px]" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Media Research Yapay Zeka Sentezi">
-                  <circle class="radar-ping" cx="256" cy="256" r="175" stroke-width="6"/>
-                  <circle class="radar-ping delay-1" cx="256" cy="256" r="175" stroke-width="6"/>
-                  <circle class="radar-ping delay-2" cx="256" cy="256" r="175" stroke-width="6"/>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="0s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="1.07s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="256" cy="256" r="46.5" fill="none" stroke="#E2232A" stroke-width="6">
+                    <animate attributeName="r" from="46.5" to="190" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.9" to="0" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                    <animate attributeName="stroke-width" from="6" to="1" dur="3.2s" begin="2.14s" repeatCount="indefinite"/>
+                  </circle>
                   <circle cx="256" cy="256" r="175" fill="none" stroke="#E2232A" stroke-opacity=".35" stroke-width="6"/>
                   <circle cx="256" cy="256" r="126" fill="none" stroke="#E2232A" stroke-width="30"/>
                   <circle cx="256" cy="256" r="46.5" fill="#E2232A"/>
