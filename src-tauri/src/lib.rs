@@ -184,7 +184,7 @@ fn save_cookies(service: String, cookie_val: String) -> Result<String, String> {
 }
 
 fn call_gemini_with_fallback(prompt: &str, api_key: &str, primary_model: &str) -> Result<String, String> {
-    let mut model_chain = vec![
+    let model_chain = vec![
         primary_model.to_string(),
         "gemini-3.7-flash".to_string(),
         "gemini-3.5-flash".to_string(),
