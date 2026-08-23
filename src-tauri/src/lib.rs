@@ -80,13 +80,17 @@ async fn execute_search(platform: String, query: String, limit: Option<u32>) -> 
             "x" | "twitter" | _ => format!("{}/agent_reach/tools/twitter_search.py", PROJECT_DIR),
         };
 
+        let sys_path = std::env::var("PATH").unwrap_or_default();
+        let home = std::env::var("HOME").unwrap_or_else(|_| "/Users/mehmetakar".to_string());
+        let full_path = format!("{}:{}/.nvm/versions/node/v20.19.5/bin:{}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin", sys_path, home, home);
+
         let output = Command::new(&python_bin)
             .arg(&script)
             .arg(&query)
             .arg(lim.to_string())
             .current_dir(PROJECT_DIR)
             .env("PYTHONPATH", PROJECT_DIR)
-            .env("PATH", "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin")
+            .env("PATH", full_path)
             .output()
             .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
 
