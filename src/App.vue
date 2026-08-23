@@ -85,6 +85,19 @@ const selectedPlatform = ref('x');
 const layout = ref('grid'); // 'grid' | 'list'
 const searchQuery = ref('');
 const isSearching = ref(false);
+const searchElapsedSeconds = ref(0);
+let searchTimerId = null;
+
+const cancelSearch = () => {
+  if (isSearching.value) {
+    isSearching.value = false;
+    if (searchTimerId) {
+      clearInterval(searchTimerId);
+      searchTimerId = null;
+    }
+    showToast('İptal Edildi', 'Arama işlemi kullanıcı tarafından durduruldu.', 'info');
+  }
+};
 
 // In-App Video & Media Modal State
 const activeModalMedia = ref(null); // { type: 'youtube' | 'instagram' | 'pinterest' | 'image', url: string, title: string, author: string }
@@ -576,11 +589,18 @@ const runSearch = async () => {
   }
 
   isSearching.value = true;
+  searchElapsedSeconds.value = 0;
+  if (searchTimerId) clearInterval(searchTimerId);
+  searchTimerId = setInterval(() => {
+    if (isSearching.value) {
+      searchElapsedSeconds.value += 1;
+    }
+  }, 1000);
+
   items.value = []; // Arama başladığında önceki sonuçları temizle ki radar animasyonu ekranda parlasın
   showToast('Arama Başlatıldı', `"${searchQuery.value}" için yerel arama yapılıyor...`, 'info');
 
   // Vue DOM güncellemesinin tamamlanmasını bekle, ardından 80ms boşluk bırak
-  // Bu sayede radar animasyonu ekranda görünür, uygulama donmuş hissettirmez
   await nextTick();
   await new Promise(r => setTimeout(r, 80));
 
@@ -588,8 +608,10 @@ const runSearch = async () => {
     const res = await invoke('execute_search', {
       platform: selectedPlatform.value === 'all' ? 'all' : selectedPlatform.value,
       query: searchQuery.value,
-      limit: 10
+      limit: selectedPlatform.value === 'all' ? 5 : 10
     });
+
+    if (!isSearching.value) return; // İptal edildiyse işlemi yoksay
 
     if (res.success) {
       let parsedList = [];
@@ -654,7 +676,7 @@ const runSearch = async () => {
           web: 'Web makalesi'
         };
         const name = platformMap[selectedPlatform.value] || 'içerik';
-        showToast('Başarılı', `${parsedList.length} adet ${name} standartlaştırılmış formatta listelendi!`, 'success');
+        showToast('Başarılı', `${parsedList.length} adet ${name} standartlaştırılmış formatta listelendi! (${searchElapsedSeconds.value} sn)`, 'success');
       } else {
         showToast('Bilgi', 'Aramanıza uygun sonuç bulunamadı.', 'info');
       }
@@ -667,10 +689,15 @@ const runSearch = async () => {
       }
     }
   } catch (err) {
+    if (!isSearching.value) return;
     console.error('Arama hatası:', err);
     showToast('Bağlantı Hatası', `Yerel komut çalıştırılamadı: ${err}`, 'error');
   } finally {
     isSearching.value = false;
+    if (searchTimerId) {
+      clearInterval(searchTimerId);
+      searchTimerId = null;
+    }
   }
 };
 
@@ -1563,14 +1590,25 @@ onMounted(() => {
 
               <div class="text-center">
                 <div class="font-semibold text-[15px] text-[#f8fafc] flex items-center justify-center gap-2">
-                  <span>8 Platformda Derin Tarama Yapılıyor</span>
+                  <span>{{ selectedPlatform === 'all' ? '8 Platformda Derin Tarama Yapılıyor' : (selectedPlatform.toUpperCase() + ' Taranıyor') }}</span>
                   <span class="inline-block w-2 h-2 rounded-full bg-[#E2232A] animate-ping"></span>
                 </div>
                 <div class="font-mono text-xs text-[#8D94A3] mt-1.5 max-w-md">
                   Yerel motor aranıyor: <span class="text-[#E2232A] font-semibold">"{{ searchQuery }}"</span>
                 </div>
                 <div class="font-mono text-[11px] text-[#5C6373] mt-1">
-                  Twitter · YouTube · Instagram · Pinterest · Reddit · GitHub · LinkedIn · Web
+                  {{ selectedPlatform === 'all' ? 'Twitter · YouTube · Instagram · Pinterest · Reddit · GitHub · LinkedIn · Web' : 'Seçili kanal taranıyor' }}
+                </div>
+                <div class="flex items-center justify-center gap-3 mt-3">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono bg-[#222733] border border-[#2a2f3a] text-[#38bdf8]">
+                    {{ searchElapsedSeconds }}s geçti
+                  </span>
+                  <button
+                    @click="cancelSearch"
+                    class="px-3 py-1 bg-[#222733] hover:bg-[#b91c1c]/30 hover:border-[#E2232A]/50 text-[#94a3b8] hover:text-white rounded-lg text-xs font-mono transition-colors border border-[#2a2f3a] cursor-pointer"
+                  >
+                    Aramayı İptal Et
+                  </button>
                 </div>
               </div>
             </div>

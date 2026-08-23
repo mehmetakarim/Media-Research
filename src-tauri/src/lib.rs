@@ -40,141 +40,153 @@ fn open_external_url(url: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn run_doctor() -> Result<String, String> {
-    let cmd = format!("cd \"{}\" && source venv/bin/activate && agent-reach doctor", PROJECT_DIR);
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
-        .output()
-        .map_err(|e| format!("Doktor komutu çalıştırılamadı: {}", e))?;
+async fn run_doctor() -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let cmd = format!("cd \"{}\" && source venv/bin/activate && agent-reach doctor", PROJECT_DIR);
+        let output = Command::new("bash")
+            .arg("-c")
+            .arg(&cmd)
+            .output()
+            .map_err(|e| format!("Doktor komutu çalıştırılamadı: {}", e))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
-    if output.status.success() {
-        Ok(stdout)
-    } else {
-        Ok(format!("{}\n{}", stdout, stderr))
-    }
+        if output.status.success() {
+            Ok(stdout)
+        } else {
+            Ok(format!("{}\n{}", stdout, stderr))
+        }
+    })
+    .await
+    .map_err(|e| format!("İş parçacığı yürütme hatası: {}", e))?
 }
 
 #[tauri::command]
-fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
-    let lim = limit.unwrap_or(10);
-    let cmd = match platform.as_str() {
-        "all" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/all_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "youtube" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/yt_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "instagram" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/ig_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "pinterest" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/pin_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "reddit" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/reddit_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "github" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/github_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "linkedin" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/linkedin_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "tiktok" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/tiktok_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "web" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/web_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "x" | "twitter" | _ => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/twitter_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-    };
-
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
-        .output()
-        .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
-
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if output.status.success() {
-        Ok(SearchResponse {
-            success: true,
-            platform,
-            raw_output: stdout,
-            error: None,
-        })
-    } else {
-        let err_msg = if !stderr.trim().is_empty() {
-            stderr
-        } else if !stdout.trim().is_empty() {
-            stdout.clone()
-        } else {
-            "Arama komutu sıfır dışı çıkış kodu döndürdü.".to_string()
+async fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let lim = limit.unwrap_or(10);
+        let cmd = match platform.as_str() {
+            "all" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/all_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "youtube" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/yt_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "instagram" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/ig_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "pinterest" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/pin_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "reddit" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/reddit_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "github" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/github_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "linkedin" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/linkedin_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "tiktok" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/tiktok_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "web" => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/web_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
+            "x" | "twitter" | _ => format!(
+                "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/twitter_search.py \"{}\" {}",
+                PROJECT_DIR,
+                query.replace("\"", "\\\""),
+                lim
+            ),
         };
 
-        Ok(SearchResponse {
-            success: false,
-            platform,
-            raw_output: stdout,
-            error: Some(err_msg),
-        })
-    }
+        let output = Command::new("bash")
+            .arg("-c")
+            .arg(&cmd)
+            .output()
+            .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
+
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+        if output.status.success() {
+            Ok(SearchResponse {
+                success: true,
+                platform,
+                raw_output: stdout,
+                error: None,
+            })
+        } else {
+            let err_msg = if !stderr.trim().is_empty() {
+                stderr
+            } else if !stdout.trim().is_empty() {
+                stdout.clone()
+            } else {
+                "Arama komutu sıfır dışı çıkış kodu döndürdü.".to_string()
+            };
+
+            Ok(SearchResponse {
+                success: false,
+                platform,
+                raw_output: stdout,
+                error: Some(err_msg),
+            })
+        }
+    })
+    .await
+    .map_err(|e| format!("İş parçacığı yürütme hatası: {}", e))?
 }
 
 #[tauri::command]
-fn fetch_url_content(url: String) -> Result<String, String> {
-    let cmd = format!("curl -s \"https://r.jina.ai/{}\"", url);
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
-        .output()
-        .map_err(|e| format!("URL okuma hatası: {}", e))?;
+async fn fetch_url_content(url: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let cmd = format!("curl -s \"https://r.jina.ai/{}\"", url);
+        let output = Command::new("bash")
+            .arg("-c")
+            .arg(&cmd)
+            .output()
+            .map_err(|e| format!("URL okuma hatası: {}", e))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
-    if output.status.success() && !stdout.trim().is_empty() {
-        Ok(stdout)
-    } else {
-        Err(if !stderr.is_empty() { stderr } else { "İçerik boş döndü".to_string() })
-    }
+        if output.status.success() && !stdout.trim().is_empty() {
+            Ok(stdout)
+        } else {
+            Err(if !stderr.is_empty() { stderr } else { "İçerik boş döndü".to_string() })
+        }
+    })
+    .await
+    .map_err(|e| format!("İş parçacığı yürütme hatası: {}", e))?
 }
 
 #[tauri::command]

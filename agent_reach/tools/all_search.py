@@ -2,7 +2,11 @@ import sys
 import os
 import json
 import time
+import socket
 import concurrent.futures
+
+# Set default socket timeout for all network requests in all threads
+socket.setdefaulttimeout(5.0)
 
 from agent_reach.tools.twitter_search import search_twitter
 from agent_reach.tools.yt_search import search_youtube
@@ -13,8 +17,8 @@ from agent_reach.tools.github_search import search_github
 from agent_reach.tools.linkedin_search import search_linkedin
 from agent_reach.tools.web_search import search_web
 
-def search_all_platforms(query, per_platform=10):
-    """Execute high-speed concurrent search across all 8 active social & web channels."""
+def search_all_platforms(query, per_platform=5):
+    """Execute high-speed concurrent search across all 8 active social & web channels with strict 6s cutoff."""
     tasks = [
         ("Twitter", search_twitter),
         ("YouTube", search_youtube),
@@ -28,23 +32,37 @@ def search_all_platforms(query, per_platform=10):
     
     all_results = []
     
-    def run_one(name_fn):
-        name, fn = name_fn
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=8)
+    try:
+        future_to_name = {
+            executor.submit(fn, query, per_platform): name 
+            for name, fn in tasks
+        }
+        
+        done, not_done = concurrent.futures.wait(
+            future_to_name.keys(), 
+            timeout=6.0, 
+            return_when=concurrent.futures.ALL_COMPLETED
+        )
+        
+        for future in done:
+            try:
+                res = future.result()
+                if res and isinstance(res, list):
+                    all_results.extend(res)
+            except Exception:
+                pass
+    finally:
+        # Do not wait for hanging threads on shutdown
         try:
-            return fn(query, per_platform)
+            executor.shutdown(wait=False, cancel_futures=True)
         except Exception:
-            return []
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-        results = executor.map(run_one, tasks)
-        for res_list in results:
-            if res_list:
-                all_results.extend(res_list)
+            executor.shutdown(wait=False)
 
     return all_results
 
 if __name__ == "__main__":
     q = sys.argv[1] if len(sys.argv) > 1 else "3d yazıcı"
-    count = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    count = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     results = search_all_platforms(q, count)
     print(json.dumps(results, ensure_ascii=False))
