@@ -6,7 +6,7 @@ import socket
 import concurrent.futures
 
 # Set default socket timeout for all network requests in all threads
-socket.setdefaulttimeout(5.0)
+socket.setdefaulttimeout(3.5)
 
 from agent_reach.tools.twitter_search import search_twitter
 from agent_reach.tools.yt_search import search_youtube
@@ -17,47 +17,46 @@ from agent_reach.tools.github_search import search_github
 from agent_reach.tools.linkedin_search import search_linkedin
 from agent_reach.tools.web_search import search_web
 
-def search_all_platforms(query, per_platform=5):
-    """Execute high-speed concurrent search across all 8 active social & web channels with strict 6s cutoff."""
+import threading
+
+def search_all_platforms(query, per_platform=4):
+    """Execute concurrent search using daemon threads with hard 3.5s cutoff."""
     tasks = [
-        ("Twitter", search_twitter),
         ("YouTube", search_youtube),
-        ("Instagram", search_instagram),
-        ("Pinterest", search_pinterest),
-        ("Reddit", search_reddit),
         ("GitHub", search_github),
+        ("Web", search_web),
+        ("Twitter", search_twitter),
+        ("Reddit", search_reddit),
         ("LinkedIn", search_linkedin),
-        ("Web", search_web)
+        ("Instagram", search_instagram),
+        ("Pinterest", search_pinterest)
     ]
     
     all_results = []
+    lock = threading.Lock()
+    threads = []
     
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=8)
-    try:
-        future_to_name = {
-            executor.submit(fn, query, per_platform): name 
-            for name, fn in tasks
-        }
-        
-        done, not_done = concurrent.futures.wait(
-            future_to_name.keys(), 
-            timeout=6.0, 
-            return_when=concurrent.futures.ALL_COMPLETED
-        )
-        
-        for future in done:
-            try:
-                res = future.result()
-                if res and isinstance(res, list):
-                    all_results.extend(res)
-            except Exception:
-                pass
-    finally:
-        # Do not wait for hanging threads on shutdown
+    def worker(fn, name):
         try:
-            executor.shutdown(wait=False, cancel_futures=True)
+            res = fn(query, per_platform)
+            if res and isinstance(res, list):
+                with lock:
+                    all_results.extend(res)
         except Exception:
-            executor.shutdown(wait=False)
+            pass
+
+    for name, fn in tasks:
+        t = threading.Thread(target=worker, args=(fn, name), daemon=True)
+        t.start()
+        threads.append(t)
+
+    # Wait at most 3.5 seconds total across all threads
+    start_time = time.time()
+    for t in threads:
+        remaining = 3.5 - (time.time() - start_time)
+        if remaining <= 0:
+            break
+        t.join(timeout=remaining)
 
     return all_results
 

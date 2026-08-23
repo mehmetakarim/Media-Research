@@ -31,7 +31,7 @@ def translate_to_turkish_fast(text):
         clean_input = text[:400]
         url = f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(clean_input)}&langpair=autodetect|tr"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 agent-reach"})
-        resp = urllib.request.urlopen(req, timeout=4)
+        resp = urllib.request.urlopen(req, timeout=1.2)
         data = json.loads(resp.read().decode("utf-8"))
         translated = data.get("responseData", {}).get("translatedText")
         if translated and len(translated.strip()) > 3 and not translated.startswith("MYMEMORY WARNING"):

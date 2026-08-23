@@ -49,7 +49,7 @@ def search_twitter(query, limit=6):
     # Run bird search with saved credentials
     cmd = f'source ~/.config/bird/credentials.env 2>/dev/null; export AUTH_TOKEN CT0; bird --auth-token "$AUTH_TOKEN" --ct0 "$CT0" search "{query}" -n {limit}'
     try:
-        res = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True, timeout=15)
+        res = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True, timeout=4)
         raw_output = res.stdout
         
         chunks = raw_output.split('──────────────────────────────────────────────────')
