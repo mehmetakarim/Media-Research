@@ -9,6 +9,8 @@ Usage:
 """
 
 import sys
+import os
+import subprocess
 from typing import Dict, List, Optional, Tuple
 
 
@@ -32,6 +34,18 @@ PLATFORM_SPECS = [
         "cookies": ["SESSDATA", "bili_jct"],
         "config_key": "bilibili",
     },
+    {
+        "name": "Instagram",
+        "domains": [".instagram.com"],
+        "cookies": ["sessionid", "csrftoken", "ds_user_id"],
+        "config_key": "instagram",
+    },
+    {
+        "name": "Pinterest",
+        "domains": [".pinterest.com"],
+        "cookies": ["_pinterest_sess", "_auth"],
+        "config_key": "pinterest",
+    }
 ]
 
 
@@ -49,9 +63,21 @@ def extract_all(browser: str = "chrome") -> Dict[str, dict]:
     try:
         import browser_cookie3
     except ImportError:
-        raise RuntimeError(
-            "browser_cookie3 not installed. Run: pip install browser-cookie3"
-        )
+        # Otomatik olarak pip ile browser-cookie3 kurmayı dene
+        try:
+            creationflags = 0x08000000 if sys.platform == "win32" else 0
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", "browser-cookie3", "--quiet"],
+                capture_output=True,
+                timeout=45,
+                creationflags=creationflags
+            )
+            import browser_cookie3
+        except Exception:
+            raise RuntimeError(
+                "Otomatik çerez çekebilmek için 'browser-cookie3' modülü gereklidir. "
+                "Lütfen komut satırında 'pip install browser-cookie3' çalıştırın veya çerezlerinizi manuel yapıştırın."
+            )
 
     # Get browser cookie jar
     browser_funcs = {
@@ -65,16 +91,16 @@ def extract_all(browser: str = "chrome") -> Dict[str, dict]:
     browser = browser.lower()
     if browser not in browser_funcs:
         raise ValueError(
-            f"Unsupported browser: {browser}. "
-            f"Supported: {', '.join(browser_funcs.keys())}"
+            f"Desteklenmeyen tarayıcı: {browser}. "
+            f"Desteklenenler: {', '.join(browser_funcs.keys())}"
         )
 
     try:
         cookie_jar = browser_funcs[browser]()
     except Exception as e:
         raise RuntimeError(
-            f"Could not read {browser} cookies: {e}\n"
-            f"Make sure {browser} is closed and you have permission to read its data."
+            f"{browser.upper()} tarayıcı çerezleri okunamadı: {e}. "
+            f"Lütfen tarayıcının tamamen kapalı olduğundan ve yetkilerinizin tam olduğundan emin olun."
         )
 
     results = {}
@@ -84,7 +110,6 @@ def extract_all(browser: str = "chrome") -> Dict[str, dict]:
         all_cookies_for_domain = []
 
         for cookie in cookie_jar:
-            # Check if cookie belongs to this platform
             domain_match = any(
                 cookie.domain.endswith(d) or cookie.domain == d.lstrip(".")
                 for d in spec["domains"]
@@ -99,7 +124,6 @@ def extract_all(browser: str = "chrome") -> Dict[str, dict]:
                     platform_cookies[cookie.name] = cookie.value
 
         if spec["cookies"] is None:
-            # Grab all as header string
             if all_cookies_for_domain:
                 cookie_str = "; ".join(
                     f"{c.name}={c.value}" for c in all_cookies_for_domain
@@ -134,16 +158,11 @@ def _sync_xfetch_session(auth_token: str, ct0: str) -> None:
             json.dump(session_data, sf, indent=2)
         os.chmod(session_path, 0o600)
     except Exception:
-        # Non-fatal: agent-reach config is the source of truth, xfetch sync is best-effort
         pass
 
 
 def _sync_bird_env(auth_token: str, ct0: str) -> None:
-    """Write Twitter credentials to ~/.config/bird/credentials.env for bird CLI.
-
-    bird reads AUTH_TOKEN and CT0 from environment variables. This writes a
-    shell-sourceable file so users can `source ~/.config/bird/credentials.env`.
-    """
+    """Write Twitter credentials to ~/.config/bird/credentials.env for bird CLI."""
     import os
 
     try:
@@ -155,11 +174,9 @@ def _sync_bird_env(auth_token: str, ct0: str) -> None:
             f.write(f'CT0="{ct0}"\n')
         os.chmod(env_path, 0o600)
     except Exception:
-        # Non-fatal: agent-reach config is the source of truth, bird env sync is best-effort
         pass
 
 
-# Alias for callers expecting the name _sync_bird_credentials
 _sync_bird_credentials = _sync_bird_env
 
 
@@ -178,16 +195,14 @@ def configure_from_browser(browser: str, config) -> List[Tuple[str, bool, str]]:
 
     if not extracted:
         return [("All platforms", False,
-                 f"No platform cookies found in {browser}. "
-                 f"Make sure you're logged into Twitter, XiaoHongShu, etc. in {browser}.")]
+                 f"{browser} tarayıcısında platform oturum çerezi bulunamadı. "
+                 f"Lütfen tarayıcınızda ilgili sitelere giriş yaptığınızdan emin olun.")]
 
-    # Configure each found platform
     if "twitter" in extracted:
         tc = extracted["twitter"]
         if "auth_token" in tc and "ct0" in tc:
             config.set("twitter_auth_token", tc["auth_token"])
             config.set("twitter_ct0", tc["ct0"])
-            # Sync credentials to bird CLI env and legacy xfetch session.json
             _sync_bird_env(tc["auth_token"], tc["ct0"])
             _sync_xfetch_session(tc["auth_token"], tc["ct0"])
             results_list.append(("Twitter/X", True, "auth_token + ct0"))
@@ -195,15 +210,14 @@ def configure_from_browser(browser: str, config) -> List[Tuple[str, bool, str]]:
             found = ", ".join(tc.keys())
             missing = [k for k in ["auth_token", "ct0"] if k not in tc]
             results_list.append(("Twitter/X", False,
-                                 f"Found {found}, but missing: {', '.join(missing)}. "
-                                 f"Make sure you're logged into x.com in {browser}."))
+                                 f"{found} bulundu fakat eksik: {', '.join(missing)}."))
 
     if "xhs" in extracted:
         cookie_str = extracted["xhs"].get("cookie_string", "")
         if cookie_str:
             config.set("xhs_cookie", cookie_str)
             n_cookies = len(cookie_str.split(";"))
-            results_list.append(("XiaoHongShu", True, f"{n_cookies} cookies"))
+            results_list.append(("XiaoHongShu", True, f"{n_cookies} çerez"))
 
     if "bilibili" in extracted:
         bc = extracted["bilibili"]
@@ -214,7 +228,6 @@ def configure_from_browser(browser: str, config) -> List[Tuple[str, bool, str]]:
             results_list.append(("Bilibili", True, "SESSDATA" +
                                  (" + bili_jct" if "bili_jct" in bc else "")))
         else:
-            results_list.append(("Bilibili", False,
-                                 f"No SESSDATA found. Make sure you're logged into bilibili.com in {browser}."))
+            results_list.append(("Bilibili", False, "SESSDATA bulunamadı."))
 
     return results_list

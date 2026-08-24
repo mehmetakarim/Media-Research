@@ -710,8 +710,14 @@ const handleExtractFromBrowser = async () => {
     }
   } catch (err) {
     console.error('Çerez çıkarma hatası:', err);
-    showToast('Çerez Çıkarma Hatası', `Tarayıcı okunamadı: ${err}`, 'error');
-    cookieMessage.value = `❌ Hata: ${err}`;
+    let msg = String(err);
+    if (msg.includes('browser-cookie3') || msg.includes('browser_cookie3')) {
+      msg = "Otomatik okuma için 'browser-cookie3' paketi gereklidir. Terminalde 'pip install browser-cookie3' çalıştırabilir veya çerezlerinizi manuel yapıştırabilirsiniz.";
+    } else if (msg.includes('Could not read') || msg.includes('Permission') || msg.includes('permission')) {
+      msg = "Tarayıcı açıkken çerez veritabanı kilitli olabilir. Lütfen tarayıcıyı tamamen kapatıp tekrar deneyin.";
+    }
+    showToast('Çerez Bildirimi', msg, 'warn');
+    cookieMessage.value = `ℹ️ ${msg}`;
   } finally {
     isExtractingCookies.value = false;
   }
