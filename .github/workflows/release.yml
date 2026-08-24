@@ -30,10 +30,15 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Setup Rust stable
+      - name: Setup Rust stable (macOS universal targets)
+        if: matrix.platform == 'macos-latest'
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
+
+      - name: Setup Rust stable (Windows)
+        if: matrix.platform == 'windows-latest'
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -41,7 +46,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Frontend Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Tauri Desktop Package (.dmg / .exe)
         uses: tauri-apps/tauri-action@v0
@@ -65,7 +70,7 @@ jobs:
             - 💬 Gönderi bazlı **"AI Yorum"** ve Türkçe Çeviri
             - 📊 **Canlı Duygu Durumu (Sentiment Bar)** ve Pazar Trend Analitiği
             - 📄 **Lenovo Red PDF & Excel (.xlsx)** Dışa Aktarma Suite'i
-            - 🍪 **Tek Tıkla Tarayıcıdan Çerez Senkronizasyonu**
+            - 🍪 **Tek Tıkla Tarayıcıdan Çerez Senkronizasyonu & Evrensel Manuel Ayrıştırıcı**
             - 📈 **Trend ve Gündem** İlham Odası
             - 🧠 **Çoklu Gemini Model Zinciri (Fallback Engine)**
           releaseDraft: false
