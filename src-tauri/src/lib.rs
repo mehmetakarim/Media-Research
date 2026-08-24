@@ -1,6 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::process::Command;
+use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchResponse {
@@ -10,8 +12,63 @@ pub struct SearchResponse {
     pub error: Option<String>,
 }
 
-// Projenin tam disk kök dizini (sanal ortam ve scriptler burada bulunur)
-const PROJECT_DIR: &str = "/Volumes/Mac Harici Disk/VibeProject/Agent-Reach";
+// Projenin yerel geliştirme disk kök dizini (Mac geliştirme ortamı)
+const DEV_PROJECT_DIR: &str = "/Volumes/Mac Harici Disk/VibeProject/Agent-Reach";
+
+fn resolve_project_root(app: &tauri::AppHandle) -> PathBuf {
+    // 1. Geliştirme ortamı yolu kontrolü (Mac hard drive)
+    let dev_root = Path::new(DEV_PROJECT_DIR);
+    if dev_root.join("agent_reach").exists() {
+        return dev_root.to_path_buf();
+    }
+
+    // 2. Tauri bundle kaynak dizini kontrolü (macOS .app Resources veya Windows resources)
+    if let Ok(res_dir) = app.path().resource_dir() {
+        if res_dir.join("agent_reach").exists() {
+            return res_dir;
+        }
+        if res_dir.join("_up_").join("agent_reach").exists() {
+            return res_dir.join("_up_");
+        }
+    }
+
+    // 3. Çalıştırılabilir ikili dosya (exe) yanındaki dizin kontrolü
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            if parent.join("agent_reach").exists() {
+                return parent.to_path_buf();
+            }
+            if parent.join("resources").join("agent_reach").exists() {
+                return parent.join("resources");
+            }
+            if parent.join("resources").join("_up_").join("agent_reach").exists() {
+                return parent.join("resources").join("_up_");
+            }
+        }
+    }
+
+    PathBuf::from(".")
+}
+
+fn resolve_python_bin(root: &Path) -> String {
+    #[cfg(target_os = "windows")]
+    {
+        let venv_py = root.join("venv").join("Scripts").join("python.exe");
+        if venv_py.exists() {
+            return venv_py.to_string_lossy().to_string();
+        }
+        // Windows standart python komutu
+        "python".to_string()
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let venv_py = root.join("venv").join("bin").join("python3");
+        if venv_py.exists() {
+            return venv_py.to_string_lossy().to_string();
+        }
+        "python3".to_string()
+    }
+}
 
 #[tauri::command]
 fn open_external_url(url: String) -> Result<(), String> {
@@ -40,13 +97,18 @@ fn open_external_url(url: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn run_doctor() -> Result<String, String> {
-    let cmd = format!("cd \"{}\" && source venv/bin/activate && agent-reach doctor", PROJECT_DIR);
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
-        .output()
-        .map_err(|e| format!("Doktor komutu çalıştırılamadı: {}", e))?;
+fn run_doctor(app: tauri::AppHandle) -> Result<String, String> {
+    let root = resolve_project_root(&app);
+    let python_bin = resolve_python_bin(&root);
+
+    let mut cmd = Command::new(&python_bin);
+    cmd.arg("-m")
+       .arg("agent_reach.cli")
+       .arg("doctor")
+       .current_dir(&root)
+       .env("PYTHONPATH", &root);
+
+    let output = cmd.output().map_err(|e| format!("Doktor komutu çalıştırılamadı (Python: {}): {}", python_bin, e))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -59,76 +121,44 @@ fn run_doctor() -> Result<String, String> {
 }
 
 #[tauri::command]
-fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
+fn execute_search(app: tauri::AppHandle, platform: String, query: String, limit: Option<u32>) -> Result<SearchResponse, String> {
     let lim = limit.unwrap_or(10);
-    let cmd = match platform.as_str() {
-        "all" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/all_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "youtube" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/yt_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "instagram" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/ig_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "pinterest" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/pin_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "reddit" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/reddit_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "github" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/github_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "linkedin" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/linkedin_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "tiktok" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/tiktok_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "web" => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/web_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
-        "x" | "twitter" | _ => format!(
-            "cd \"{}\" && source venv/bin/activate && python3 agent_reach/tools/twitter_search.py \"{}\" {}",
-            PROJECT_DIR,
-            query.replace("\"", "\\\""),
-            lim
-        ),
+    let root = resolve_project_root(&app);
+    let python_bin = resolve_python_bin(&root);
+
+    let script_file = match platform.as_str() {
+        "all" => "all_search.py",
+        "youtube" => "yt_search.py",
+        "instagram" => "ig_search.py",
+        "pinterest" => "pin_search.py",
+        "reddit" => "reddit_search.py",
+        "github" => "github_search.py",
+        "linkedin" => "linkedin_search.py",
+        "tiktok" => "tiktok_search.py",
+        "web" => "web_search.py",
+        "x" | "twitter" | _ => "twitter_search.py",
     };
 
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
-        .output()
-        .map_err(|e| format!("Arama komutu tetiklenemedi: {}", e))?;
+    let script_path = root.join("agent_reach").join("tools").join(script_file);
+
+    let sys_path = std::env::var("PATH").unwrap_or_default();
+    let home = std::env::var("HOME").or_else(|_| std::env::var("USERPROFILE")).unwrap_or_default();
+    
+    #[cfg(target_os = "windows")]
+    let full_path = format!("{};{}\\.local\\bin;{}", sys_path, home, sys_path);
+    
+    #[cfg(not(target_os = "windows"))]
+    let full_path = format!("{}:{}/.nvm/versions/node/v20.19.5/bin:{}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin", sys_path, home, home);
+
+    let mut cmd = Command::new(&python_bin);
+    cmd.arg(&script_path)
+       .arg(&query)
+       .arg(lim.to_string())
+       .current_dir(&root)
+       .env("PYTHONPATH", &root)
+       .env("PATH", full_path);
+
+    let output = cmd.output().map_err(|e| format!("Arama komutu tetiklenemedi (Python: {}, Script: {:?}): {}", python_bin, script_path, e))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -160,17 +190,17 @@ fn execute_search(platform: String, query: String, limit: Option<u32>) -> Result
 
 #[tauri::command]
 fn fetch_url_content(url: String) -> Result<String, String> {
-    let cmd = format!("curl -s \"https://r.jina.ai/{}\"", url);
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
+    let target = format!("https://r.jina.ai/{}", url);
+    let client_res = Command::new("curl")
+        .arg("-s")
+        .arg(&target)
         .output()
         .map_err(|e| format!("URL okuma hatası: {}", e))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    let stdout = String::from_utf8_lossy(&client_res.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&client_res.stderr).to_string();
 
-    if output.status.success() && !stdout.trim().is_empty() {
+    if client_res.status.success() && !stdout.trim().is_empty() {
         Ok(stdout)
     } else {
         Err(if !stderr.is_empty() { stderr } else { "İçerik boş döndü".to_string() })
@@ -178,7 +208,7 @@ fn fetch_url_content(url: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn save_cookies(service: String, cookie_val: String) -> Result<String, String> {
+fn save_cookies(app: tauri::AppHandle, service: String, cookie_val: String) -> Result<String, String> {
     let key = match service.as_str() {
         "twitter" | "x" => "twitter-cookies",
         "instagram" => "instagram-cookies",
@@ -193,18 +223,19 @@ fn save_cookies(service: String, cookie_val: String) -> Result<String, String> {
         _ => "twitter-cookies",
     };
 
-    let cmd = format!(
-        "cd \"{}\" && source venv/bin/activate && agent-reach configure {} \"{}\"",
-        PROJECT_DIR,
-        key,
-        cookie_val.replace("\"", "\\\"")
-    );
+    let root = resolve_project_root(&app);
+    let python_bin = resolve_python_bin(&root);
 
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&cmd)
-        .output()
-        .map_err(|e| format!("Çerez kaydetme hatası: {}", e))?;
+    let mut cmd = Command::new(&python_bin);
+    cmd.arg("-m")
+       .arg("agent_reach.cli")
+       .arg("configure")
+       .arg(key)
+       .arg(&cookie_val)
+       .current_dir(&root)
+       .env("PYTHONPATH", &root);
+
+    let output = cmd.output().map_err(|e| format!("Çerez kaydetme hatası: {}", e))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -217,7 +248,7 @@ fn save_cookies(service: String, cookie_val: String) -> Result<String, String> {
 }
 
 fn call_gemini_with_fallback(prompt: &str, api_key: &str, primary_model: &str) -> Result<String, String> {
-    let mut model_chain = vec![
+    let model_chain = vec![
         primary_model.to_string(),
         "gemini-3.7-flash".to_string(),
         "gemini-3.5-flash".to_string(),
@@ -335,18 +366,22 @@ fn translate_text(text: String, api_key: Option<String>, model: Option<String>) 
 }
 
 #[tauri::command]
-fn extract_browser_cookies(browser: String) -> Result<String, String> {
-    let script = format!(
-        "cd \"{}\" && source venv/bin/activate && python3 -c \"import json; from agent_reach.cookie_extract import extract_all; print(json.dumps(extract_all('{}')))\"",
-        PROJECT_DIR,
+fn extract_browser_cookies(app: tauri::AppHandle, browser: String) -> Result<String, String> {
+    let root = resolve_project_root(&app);
+    let python_bin = resolve_python_bin(&root);
+
+    let code = format!(
+        "import json; from agent_reach.cookie_extract import extract_all; print(json.dumps(extract_all('{}')))",
         browser.to_lowercase()
     );
 
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(&script)
-        .output()
-        .map_err(|e| format!("Çerez okuyucu betiği çalıştırılamadı: {}", e))?;
+    let mut cmd = Command::new(&python_bin);
+    cmd.arg("-c")
+       .arg(&code)
+       .current_dir(&root)
+       .env("PYTHONPATH", &root);
+
+    let output = cmd.output().map_err(|e| format!("Çerez okuyucu betiği çalıştırılamadı (Python: {}): {}", python_bin, e))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -358,12 +393,33 @@ fn extract_browser_cookies(browser: String) -> Result<String, String> {
     }
 }
 
+fn decode_base64_bytes(input: &str) -> Vec<u8> {
+    let table = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut decode_map = [255u8; 256];
+    for (i, &c) in table.iter().enumerate() {
+        decode_map[c as usize] = i as u8;
+    }
+    let clean: String = input.chars().filter(|c| !c.is_whitespace()).collect();
+    let mut bytes = Vec::with_capacity(clean.len() * 3 / 4);
+    let mut buf = 0u32;
+    let mut bits = 0;
+    for &b in clean.as_bytes() {
+        if b == b'=' { break; }
+        let val = decode_map[b as usize];
+        if val == 255 { continue; }
+        buf = (buf << 6) | (val as u32);
+        bits += 6;
+        if bits >= 8 {
+            bits -= 8;
+            bytes.push((buf >> bits) as u8);
+        }
+    }
+    bytes
+}
+
 #[tauri::command]
 fn save_file_to_downloads(filename: String, base64_data: String) -> Result<String, String> {
     use std::fs;
-    use std::io::Write;
-    use std::path::PathBuf;
-    use std::process::Stdio;
 
     let home_dir = std::env::var("HOME").or_else(|_| std::env::var("USERPROFILE")).map_err(|_| "Ev dizini bulunamadı".to_string())?;
     let downloads_dir = PathBuf::from(home_dir).join("Downloads");
@@ -380,27 +436,10 @@ fn save_file_to_downloads(filename: String, base64_data: String) -> Result<Strin
         &base64_data
     };
 
-    // Safe writing using Python process with STDIN to avoid argument length limits
-    let mut child = Command::new("python3")
-        .arg("-c")
-        .arg(format!("import sys, base64; open(r'{}', 'wb').write(base64.b64decode(sys.stdin.read().strip()))", file_path.to_string_lossy()))
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|e| format!("Python işlemi başlatılamadı: {}", e))?;
+    let decoded_bytes = decode_base64_bytes(clean_b64);
+    fs::write(&file_path, &decoded_bytes).map_err(|e| format!("Dosya kaydedilemedi: {}", e))?;
 
-    if let Some(mut stdin) = child.stdin.take() {
-        stdin.write_all(clean_b64.as_bytes()).map_err(|e| format!("Veri yazılamadı: {}", e))?;
-    }
-
-    let output = child.wait_with_output().map_err(|e| format!("Dosya yazma işlemi tamamlanamadı: {}", e))?;
-
-    if output.status.success() && file_path.exists() {
-        Ok(file_path.to_string_lossy().to_string())
-    } else {
-        Err(format!("Dosya kaydedilemedi: {}", String::from_utf8_lossy(&output.stderr)))
-    }
+    Ok(file_path.to_string_lossy().to_string())
 }
 
 #[tauri::command]
