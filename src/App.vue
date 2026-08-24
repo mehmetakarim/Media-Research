@@ -147,6 +147,10 @@ const availableModels = ref([
 // Auto-Cookie Extraction State
 const autoCookieBrowser = ref('chrome');
 const isExtractingCookies = ref(false);
+const cookieService = ref('twitter');
+const cookieValue = ref('');
+const cookieMessage = ref('');
+const isSavingCookies = ref(false);
 
 // Advanced Filter & Sort State
 const sortBy = ref('default'); // 'default' | 'likes' | 'comments' | 'newest'
@@ -2154,7 +2158,7 @@ onMounted(() => {
 
                 <div class="flex gap-1.5 mt-3">
                   <button
-                    @click="cookieService = c.key; currentView = 'channels';"
+                    @click="cookieService = c.key; currentView = 'channels'; cookieMessage = `ℹ️ ${c.name} için düzenleme seçildi. Lütfen çerez değerini girip Kaydet'e basın.`;"
                     class="flex-1 bg-[#1e222b] border border-[#2e3442] hover:border-[#475569] text-[#94a3b8] hover:text-white rounded-lg py-1 font-mono text-[10.5px] transition-colors cursor-pointer"
                   >
                     çerez düzenle

@@ -7,6 +7,14 @@ import urllib.parse
 import re
 import html
 import concurrent.futures
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 from agent_reach.tools.translate_util import translate_to_turkish_fast
 
 def resolve_single_tweet_media(tweet_id):

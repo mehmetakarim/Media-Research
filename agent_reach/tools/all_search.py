@@ -4,6 +4,13 @@ import json
 import time
 import concurrent.futures
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 from agent_reach.tools.twitter_search import search_twitter
 from agent_reach.tools.yt_search import search_youtube
 from agent_reach.tools.ig_search import search_instagram

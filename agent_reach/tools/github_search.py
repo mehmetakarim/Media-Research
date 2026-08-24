@@ -3,8 +3,16 @@ import os
 import json
 import urllib.request
 import urllib.parse
+import re
 from agent_reach.config import Config
 from agent_reach.tools.translate_util import translate_to_turkish_fast
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
 
 def search_github(query, limit=6):
     config = Config()

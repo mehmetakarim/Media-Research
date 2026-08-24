@@ -21,6 +21,8 @@ const DEV_PROJECT_DIR: &str = "/Volumes/Mac Harici Disk/VibeProject/Agent-Reach"
 #[allow(unused_mut)]
 fn create_silent_command(program: &str) -> Command {
     let mut cmd = Command::new(program);
+    cmd.env("PYTHONIOENCODING", "utf-8")
+       .env("PYTHONUTF8", "1");
     #[cfg(target_os = "windows")]
     {
         cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW: Windows'ta konsol penceresinin açılmasını engeller
