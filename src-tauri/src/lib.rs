@@ -322,24 +322,32 @@ fn call_gemini_with_fallback(prompt: &str, api_key: &str, primary_model: &str) -
     Err(last_error)
 }
 
+fn get_effective_api_key(api_key: Option<String>) -> Result<String, String> {
+    if let Some(k) = api_key {
+        let trimmed = k.trim();
+        if !trimmed.is_empty() {
+            return Ok(trimmed.to_string());
+        }
+    }
+    if let Ok(env_key) = std::env::var("GEMINI_API_KEY") {
+        let trimmed = env_key.trim();
+        if !trimmed.is_empty() {
+            return Ok(trimmed.to_string());
+        }
+    }
+    Err("Google Gemini API anahtarı bulunamadı. Lütfen Ayarlar sekmesinden API anahtarınızı tanımlayın.".to_string())
+}
+
 #[tauri::command]
 fn generate_ai_summary(prompt: String, api_key: Option<String>, model: Option<String>) -> Result<String, String> {
-    let key = match api_key {
-        Some(k) if !k.trim().is_empty() => k.trim().to_string(),
-        _ => "GEMINI_API_KEY_ENV".to_string(),
-    };
-
+    let key = get_effective_api_key(api_key)?;
     let primary = model.unwrap_or_else(|| "gemini-2.5-flash".to_string());
     call_gemini_with_fallback(&prompt, &key, &primary)
 }
 
 #[tauri::command]
 fn fetch_gemini_models(api_key: Option<String>) -> Result<String, String> {
-    let key = match api_key {
-        Some(k) if !k.trim().is_empty() => k.trim().to_string(),
-        _ => "GEMINI_API_KEY_ENV".to_string(),
-    };
-
+    let key = get_effective_api_key(api_key)?;
     let url = format!("https://generativelanguage.googleapis.com/v1beta/models?key={}", key);
     let client_res = create_silent_command("curl")
         .arg("-s")
@@ -353,11 +361,7 @@ fn fetch_gemini_models(api_key: Option<String>) -> Result<String, String> {
 
 #[tauri::command]
 fn translate_text(text: String, api_key: Option<String>, model: Option<String>) -> Result<String, String> {
-    let key = match api_key {
-        Some(k) if !k.trim().is_empty() => k.trim().to_string(),
-        _ => "GEMINI_API_KEY_ENV".to_string(),
-    };
-
+    let key = get_effective_api_key(api_key)?;
     let prompt = format!(
         "Lütfen aşağıdaki metni anlam bütünlüğünü, terimleri ve varsa sosyal medya havasını (emoji, mention, hashtag) koruyarak akıcı ve doğal bir Türkçeye çevir. Sadece çeviriyi ver, ek açıklama yapma:\n\n{}",
         text
