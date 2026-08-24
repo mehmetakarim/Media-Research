@@ -46,7 +46,10 @@ import {
   Clock,
   Flame,
   FolderOpen,
-  FileDown
+  FileDown,
+  Pencil,
+  Edit3,
+  Trash2
 } from 'lucide-vue-next';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
@@ -290,20 +293,41 @@ const saveReportToDisk = (title, content, kind = 'MD', isAi = true) => {
   showToast('Kaydedildi', `"${finalTitle}" raporu başarıyla yerel kasanıza kaydedildi!`, 'success');
 };
 
-const renameReport = (id) => {
-  const report = savedExports.value.find(r => r.id === id);
+// Rename Modal State
+const isRenameModalOpen = ref(false);
+const renamingReportId = ref(null);
+const renameInputText = ref('');
+
+const openRenameModal = (report) => {
   if (!report) return;
-  const newTitle = prompt('Rapor için yeni bir başlık girin:', report.title);
-  if (newTitle && newTitle.trim() && newTitle.trim() !== report.title) {
-    report.title = newTitle.trim();
+  renamingReportId.value = report.id;
+  renameInputText.value = report.title;
+  isRenameModalOpen.value = true;
+};
+
+const closeRenameModal = () => {
+  isRenameModalOpen.value = false;
+  renamingReportId.value = null;
+  renameInputText.value = '';
+};
+
+const saveRenamedReport = () => {
+  if (!renameInputText.value || !renameInputText.value.trim()) {
+    showToast('Uyarı', 'Lütfen geçerli bir başlık girin.', 'warn');
+    return;
+  }
+  const report = savedExports.value.find(r => r.id === renamingReportId.value);
+  if (report) {
+    report.title = renameInputText.value.trim();
     report.path = `${report.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.${report.kind.toLowerCase()}`;
     localStorage.setItem('agent_reach_saved_exports', JSON.stringify(savedExports.value));
-    if (viewingReport.value?.id === id) {
+    if (viewingReport.value?.id === report.id) {
       viewingReport.value.title = report.title;
       viewingReport.value.path = report.path;
     }
-    showToast('Yeniden Adlandırıldı', `Rapor başlığı "${report.title}" olarak güncellendi.`, 'success');
+    showToast('Başarılı', `Rapor "${report.title}" olarak güncellendi!`, 'success');
   }
+  closeRenameModal();
 };
 
 const deleteReport = (id) => {
@@ -1973,9 +1997,9 @@ onMounted(() => {
               <div class="flex-1"></div>
               <button
                 @click="saveReportToDisk(`${searchQuery || 'Canlı Akış'} Koleksiyonu (${generateShortId()})`, JSON.stringify(items, null, 2), 'JSON', false)"
-                class="text-xs bg-[#1e222b] border border-[#2e3442] hover:border-[#E2232A] text-[#cbd5e1] hover:text-white px-3 py-1.5 rounded-lg font-mono cursor-pointer transition-colors"
+                class="text-xs bg-[#1e222b] border border-[#2e3442] hover:border-[#E2232A] text-[#cbd5e1] hover:text-white px-3.5 py-2 rounded-xl font-mono cursor-pointer transition-colors shadow-sm flex items-center gap-1.5"
               >
-                + Mevcut Arama Akışını Kaydet
+                <FolderOpen class="w-3.5 h-3.5 text-[#E2232A]" /> + Mevcut Arama Akışını Kaydet
               </button>
             </div>
 
@@ -1990,87 +2014,134 @@ onMounted(() => {
                 v-for="s in savedExports"
                 :key="s.id || s.path"
                 @click="viewingReport = s"
-                class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-[#1e222b] transition-colors cursor-pointer"
+                class="flex items-center gap-3.5 px-4 py-3 hover:bg-[#1e222b] transition-colors cursor-pointer group"
               >
-                <span class="font-mono text-[10px] w-11 text-center py-1 rounded-md text-[#94a3b8] bg-[#12141a] border border-[#2e3442]">
+                <span class="font-mono text-[10px] font-semibold w-10 text-center py-1 rounded-md text-[#94a3b8] bg-[#12141a] border border-[#2e3442] flex-shrink-0">
                   {{ s.kind }}
                 </span>
-                <div class="min-w-[220px] flex-1 overflow-hidden">
-                  <div class="text-[13.5px] font-medium text-[#f1f5f9] truncate hover:text-[#E2232A] transition-colors">{{ s.title }}</div>
-                  <div class="font-mono text-[10.5px] text-[#64748b] mt-1 truncate">{{ s.path }}</div>
+                <div class="min-w-[200px] flex-1 overflow-hidden">
+                  <div class="text-[13.5px] font-medium text-[#f1f5f9] truncate group-hover:text-[#E2232A] transition-colors">{{ s.title }}</div>
+                  <div class="font-mono text-[10.5px] text-[#64748b] mt-0.5 truncate">{{ s.path }}</div>
                 </div>
-                <span class="font-mono text-[10.5px] text-[#64748b] flex-shrink-0">{{ s.date }}</span>
-                <span v-if="s.ai" class="font-mono text-[10px] text-[#fca5a5] bg-[rgba(226,35,42,0.16)] border border-[rgba(226,35,42,0.4)] rounded-md px-2 py-0.5 flex-shrink-0">
+                <span class="font-mono text-[10.5px] text-[#64748b] flex-shrink-0 hidden sm:inline">{{ s.date }}</span>
+                <span v-if="s.ai" class="font-mono text-[10px] text-[#fca5a5] bg-[rgba(226,35,42,0.14)] border border-[rgba(226,35,42,0.3)] rounded-md px-2 py-0.5 flex-shrink-0">
                   ai analizi
                 </span>
 
-                <!-- PDF İndir Butonu -->
-                <button
-                  @click.stop="exportReportToPdf(s.title, s.content || s.title)"
-                  class="bg-[#1e222b] border border-[#2e3442] hover:border-[#10b981] text-[#34d399] hover:text-white rounded-lg px-2.5 py-1 font-mono text-[11px] transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
-                  title="Lenovo Red temalı PDF olarak indir"
-                >
-                  <FileText class="w-3 h-3" /> PDF
-                </button>
+                <!-- Hizalı Buton Grubu -->
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <!-- PDF İndir -->
+                  <button
+                    @click.stop="exportReportToPdf(s.title, s.content || s.title)"
+                    class="h-7 px-2.5 bg-[#12141a] border border-[#2e3442] hover:border-[#10b981] text-[#34d399] hover:text-white rounded-lg font-mono text-[11px] transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+                    title="PDF olarak indir"
+                  >
+                    <FileText class="w-3 h-3" /> PDF
+                  </button>
 
-                <button
-                  @click.stop="renameReport(s.id)"
-                  class="bg-[#1e222b] border border-[#2e3442] hover:border-[#60a5fa] text-[#60a5fa] hover:text-white rounded-lg px-2.5 py-1 font-mono text-[11px] transition-colors cursor-pointer ml-1"
-                  title="Rapor başlığını yeniden adlandır"
-                >
-                  ✏️ adlandır
-                </button>
+                  <!-- Yeniden Adlandır -->
+                  <button
+                    @click.stop="openRenameModal(s)"
+                    class="h-7 px-2.5 bg-[#12141a] border border-[#2e3442] hover:border-[#60a5fa] text-[#93c5fd] hover:text-white rounded-lg font-mono text-[11px] transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+                    title="Başlığı düzenle"
+                  >
+                    <Pencil class="w-3 h-3" /> adlandır
+                  </button>
 
-                <button
-                  @click.stop="viewingReport = s"
-                  class="bg-[#1e222b] border border-[#2e3442] hover:border-[#E2232A] text-[#E2232A] hover:text-white rounded-lg px-2.5 py-1 font-mono text-[11px] transition-colors cursor-pointer ml-1"
-                >
-                  oku
-                </button>
-                <button
-                  @click.stop="deleteReport(s.id)"
-                  class="bg-[#1e222b] border border-[#2e3442] hover:border-[#ef4444] text-[#ef4444] hover:text-white rounded-lg px-2.5 py-1 font-mono text-[11px] transition-colors cursor-pointer ml-1"
-                >
-                  sil
-                </button>
+                  <!-- Oku / İncele -->
+                  <button
+                    @click.stop="viewingReport = s"
+                    class="h-7 px-2.5 bg-[#12141a] border border-[#2e3442] hover:border-[#E2232A] text-[#fca5a5] hover:text-white rounded-lg font-mono text-[11px] transition-colors cursor-pointer shadow-sm"
+                  >
+                    oku
+                  </button>
+
+                  <!-- Sil -->
+                  <button
+                    @click.stop="deleteReport(s.id)"
+                    class="h-7 px-2 bg-[#12141a] border border-[#2e3442] hover:border-[#ef4444] text-[#f87171] hover:text-white rounded-lg font-mono text-[11px] transition-colors cursor-pointer flex items-center justify-center shadow-sm"
+                    title="Raporu sil"
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
 
             <!-- RAPOR GÖRÜNTÜLEME MODALI / PANELİ -->
             <div v-if="viewingReport" class="mt-6 border border-[#E2232A]/40 bg-[#151820] rounded-2xl p-5 shadow-2xl animate-fade">
               <div class="flex items-center gap-2 mb-3 border-b border-[#262a35] pb-3">
-                <Bookmark class="w-4 h-4 text-[#E2232A]" />
-                <span class="text-sm font-semibold text-[#f1f5f9]">{{ viewingReport.title }}</span>
-                <span class="text-xs font-mono text-[#64748b]">({{ viewingReport.path }})</span>
-                <div class="flex-1"></div>
+                <Bookmark class="w-4 h-4 text-[#E2232A] flex-shrink-0" />
+                <span class="text-sm font-semibold text-[#f1f5f9] truncate">{{ viewingReport.title }}</span>
                 <button
-                  @click="renameReport(viewingReport.id)"
-                  class="text-xs bg-[#1e222b] border border-[#2e3442] hover:border-[#60a5fa] text-[#60a5fa] hover:text-white px-2.5 py-1.5 rounded-lg font-mono cursor-pointer mr-2 shadow-sm"
-                  title="Rapor başlığını yeniden adlandır"
+                  @click="openRenameModal(viewingReport)"
+                  class="text-[#93c5fd] hover:text-white transition-colors cursor-pointer p-1 rounded hover:bg-[#1e222b]"
+                  title="Başlığı düzenle"
                 >
-                  ✏️ yeniden adlandır
+                  <Pencil class="w-3.5 h-3.5" />
                 </button>
+                <span class="text-xs font-mono text-[#64748b] hidden md:inline truncate">({{ viewingReport.path }})</span>
+                <div class="flex-1"></div>
                 <button
                   @click="exportReportToPdf(viewingReport.title, viewingReport.content || viewingReport.title)"
                   class="text-xs bg-[#10b981] hover:bg-[#059669] text-white px-3 py-1.5 rounded-lg font-mono cursor-pointer transition-colors shadow-sm flex items-center gap-1.5 mr-2"
                 >
-                  <FileText class="w-3.5 h-3.5" /> PDF Raporu İndir
+                  <FileText class="w-3.5 h-3.5" /> PDF İndir
                 </button>
                 <button
                   @click="copyToClipboard(viewingReport.content || viewingReport.title)"
                   class="text-xs text-[#E2232A] hover:underline font-mono cursor-pointer mr-3"
                 >
-                  metni kopyala
+                  kopyala
                 </button>
                 <button
                   @click="viewingReport = null"
                   class="text-xs bg-[#1e222b] border border-[#2e3442] hover:border-[#475569] text-[#94a3b8] hover:text-white px-2.5 py-1 rounded-md font-mono cursor-pointer"
                 >
-                  kapat ✕
+                  ✕
                 </button>
               </div>
               <div v-if="viewingReport.kind === 'MD'" class="markdown-body select-text p-4 bg-[#12141a] border border-[#262a35] rounded-xl max-h-[500px] overflow-y-auto" v-html="renderMarkdown(viewingReport.content || viewingReport.title)"></div>
               <pre v-else class="m-0 p-3 bg-[#12141a] border border-[#262a35] rounded-xl font-mono text-xs text-[#cbd5e1] whitespace-pre-wrap max-h-96 overflow-y-auto select-text leading-relaxed">{{ viewingReport.content || viewingReport.title }}</pre>
+            </div>
+
+            <!-- YENİDEN ADLANDIRMA MODAL DİYALOĞU -->
+            <div v-if="isRenameModalOpen" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade" @click.self="closeRenameModal">
+              <div class="bg-[#181b22] border border-[#2e3442] focus-within:border-[#E2232A] rounded-2xl p-5 max-w-md w-full shadow-2xl">
+                <div class="flex items-center gap-2 mb-2">
+                  <Edit3 class="w-4 h-4 text-[#E2232A]" />
+                  <h3 class="text-sm font-semibold text-[#f8fafc]">Rapor Başlığını Düzenle</h3>
+                  <div class="flex-1"></div>
+                  <button @click="closeRenameModal" class="text-[#64748b] hover:text-white cursor-pointer">
+                    <X class="w-4 h-4" />
+                  </button>
+                </div>
+                <p class="text-xs text-[#94a3b8] mb-3 leading-relaxed">
+                  Raporunuz için yeni bir başlık belirleyin:
+                </p>
+                <input
+                  v-model="renameInputText"
+                  @keyup.enter="saveRenamedReport"
+                  @keyup.esc="closeRenameModal"
+                  class="w-full bg-[#12141a] border border-[#2e3442] focus:border-[#E2232A] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[#f1f5f9] outline-none mb-4 shadow-inner"
+                  placeholder="Rapor başlığı..."
+                  autofocus
+                />
+                <div class="flex justify-end gap-2">
+                  <button
+                    @click="closeRenameModal"
+                    class="px-4 py-2 rounded-xl text-xs font-mono text-[#94a3b8] hover:text-white bg-[#1e222b] hover:bg-[#2e3442] transition-colors cursor-pointer"
+                  >
+                    Vazgeç
+                  </button>
+                  <button
+                    @click="saveRenamedReport"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#E2232A] hover:bg-[#b91c1c] transition-colors cursor-pointer shadow-md"
+                  >
+                    Kaydet &amp; Güncelle
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
