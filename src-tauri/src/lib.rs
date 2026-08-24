@@ -222,41 +222,28 @@ fn fetch_url_content(url: String) -> Result<String, String> {
 
 #[tauri::command]
 fn save_cookies(app: tauri::AppHandle, service: String, cookie_val: String) -> Result<String, String> {
-    let key = match service.as_str() {
-        "twitter" | "x" => "twitter-cookies",
-        "instagram" => "instagram-cookies",
-        "pinterest" => "pinterest-cookies",
-        "reddit" => "reddit-cookies",
-        "linkedin" => "linkedin-cookies",
-        "tiktok" => "tiktok-cookies",
-        "github" => "github-token",
-        "youtube" => "youtube-cookies",
-        "xhs" => "xhs-cookies",
-        "xiaoyuzhou" => "groq-key",
-        _ => "twitter-cookies",
-    };
-
     let root = resolve_project_root(&app);
     let python_bin = resolve_python_bin(&root);
 
+    let script = "import json, sys; from agent_reach.cookie_extract import save_cookies_for_service; print(json.dumps(save_cookies_for_service(sys.argv[1], sys.argv[2])))";
+
     let mut cmd = create_silent_command(&python_bin);
-    cmd.arg("-m")
-       .arg("agent_reach.cli")
-       .arg("configure")
-       .arg(key)
+    cmd.arg("-c")
+       .arg(script)
+       .arg(&service)
        .arg(&cookie_val)
        .current_dir(&root)
        .env("PYTHONPATH", &root);
 
-    let output = cmd.output().map_err(|e| format!("Çerez kaydetme hatası: {}", e))?;
+    let output = cmd.output().map_err(|e| format!("Çerez kaydetme hatası (Python: {}): {}", python_bin, e))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
-    if output.status.success() {
+    if output.status.success() && !stdout.trim().is_empty() {
         Ok(stdout)
     } else {
-        Err(format!("{}\n{}", stdout, stderr))
+        Err(if !stderr.trim().is_empty() { stderr } else { stdout })
     }
 }
 
