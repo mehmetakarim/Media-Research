@@ -242,19 +242,68 @@ const loadSavedExports = () => {
   }
 };
 
+const generateShortId = () => Math.random().toString(36).substring(2, 6).toUpperCase();
+
+const detectSmartReportTitle = (content, fallbackPrompt = '') => {
+  const shortId = generateShortId();
+  if (content) {
+    const lines = content.split('\n');
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (line.startsWith('#')) {
+        const cleaned = line.replace(/^#+\s*/, '').replace(/[*_`#]/g, '').trim();
+        if (cleaned.length >= 3 && cleaned.length <= 60) {
+          return `${cleaned} (${shortId})`;
+        }
+      }
+    }
+  }
+
+  if (fallbackPrompt && fallbackPrompt.trim()) {
+    let cleanPrompt = fallbackPrompt.trim().replace(/^["']|["']$/g, '');
+    if (cleanPrompt.length > 40) {
+      cleanPrompt = cleanPrompt.substring(0, 40) + '...';
+    }
+    return `${cleanPrompt} (${shortId})`;
+  }
+
+  if (searchQuery.value && searchQuery.value.trim()) {
+    return `${searchQuery.value.trim()} Analiz Raporu (${shortId})`;
+  }
+
+  return `AI Analiz Raporu (${shortId})`;
+};
+
 const saveReportToDisk = (title, content, kind = 'MD', isAi = true) => {
+  const finalTitle = title || `AI Analiz Raporu (${generateShortId()})`;
   const newReport = {
     id: `rep_${Date.now()}`,
     kind,
-    title,
-    path: `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.${kind.toLowerCase()}`,
+    title: finalTitle,
+    path: `${finalTitle.toLowerCase().replace(/[^a-z0-9]/g, '-')}.${kind.toLowerCase()}`,
     date: 'Bugün',
     ai: isAi,
     content
   };
   savedExports.value.unshift(newReport);
   localStorage.setItem('agent_reach_saved_exports', JSON.stringify(savedExports.value));
-  showToast('Kaydedildi', `"${title}" raporu başarıyla yerel kasanıza kaydedildi!`, 'success');
+  showToast('Kaydedildi', `"${finalTitle}" raporu başarıyla yerel kasanıza kaydedildi!`, 'success');
+};
+
+const renameReport = (id) => {
+  const report = savedExports.value.find(r => r.id === id);
+  if (!report) return;
+  const newTitle = prompt('Rapor için yeni bir başlık girin:', report.title);
+  if (newTitle && newTitle.trim() && newTitle.trim() !== report.title) {
+    report.title = newTitle.trim();
+    report.path = `${report.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.${report.kind.toLowerCase()}`;
+    localStorage.setItem('agent_reach_saved_exports', JSON.stringify(savedExports.value));
+    if (viewingReport.value?.id === id) {
+      viewingReport.value.title = report.title;
+      viewingReport.value.path = report.path;
+    }
+    showToast('Yeniden Adlandırıldı', `Rapor başlığı "${report.title}" olarak güncellendi.`, 'success');
+  }
 };
 
 const deleteReport = (id) => {
@@ -1900,7 +1949,7 @@ onMounted(() => {
                 <span class="text-xs font-mono text-[#64748b]">({{ geminiModel }})</span>
                 <div class="flex-1"></div>
                 <button
-                  @click="saveReportToDisk('AI Analiz ve Pazar Raporu', aiAssistantResponse, 'MD', true)"
+                  @click="saveReportToDisk(detectSmartReportTitle(aiAssistantResponse, aiAssistantPrompt), aiAssistantResponse, 'MD', true)"
                   class="text-xs bg-[#E2232A] hover:bg-[#b91c1c] text-white px-3 py-1.5 rounded-lg font-mono cursor-pointer transition-colors shadow-sm"
                 >
                   kütüphaneye kaydet
@@ -1923,7 +1972,7 @@ onMounted(() => {
               <span class="font-mono text-[11px] text-[#64748b]">{{ savedExports.length }} rapor · yerel disk kasası</span>
               <div class="flex-1"></div>
               <button
-                @click="saveReportToDisk('Canlı Akış Koleksiyonu', JSON.stringify(items, null, 2), 'JSON', false)"
+                @click="saveReportToDisk(`${searchQuery || 'Canlı Akış'} Koleksiyonu (${generateShortId()})`, JSON.stringify(items, null, 2), 'JSON', false)"
                 class="text-xs bg-[#1e222b] border border-[#2e3442] hover:border-[#E2232A] text-[#cbd5e1] hover:text-white px-3 py-1.5 rounded-lg font-mono cursor-pointer transition-colors"
               >
                 + Mevcut Arama Akışını Kaydet
@@ -1965,6 +2014,14 @@ onMounted(() => {
                 </button>
 
                 <button
+                  @click.stop="renameReport(s.id)"
+                  class="bg-[#1e222b] border border-[#2e3442] hover:border-[#60a5fa] text-[#60a5fa] hover:text-white rounded-lg px-2.5 py-1 font-mono text-[11px] transition-colors cursor-pointer ml-1"
+                  title="Rapor başlığını yeniden adlandır"
+                >
+                  ✏️ adlandır
+                </button>
+
+                <button
                   @click.stop="viewingReport = s"
                   class="bg-[#1e222b] border border-[#2e3442] hover:border-[#E2232A] text-[#E2232A] hover:text-white rounded-lg px-2.5 py-1 font-mono text-[11px] transition-colors cursor-pointer ml-1"
                 >
@@ -1986,6 +2043,13 @@ onMounted(() => {
                 <span class="text-sm font-semibold text-[#f1f5f9]">{{ viewingReport.title }}</span>
                 <span class="text-xs font-mono text-[#64748b]">({{ viewingReport.path }})</span>
                 <div class="flex-1"></div>
+                <button
+                  @click="renameReport(viewingReport.id)"
+                  class="text-xs bg-[#1e222b] border border-[#2e3442] hover:border-[#60a5fa] text-[#60a5fa] hover:text-white px-2.5 py-1.5 rounded-lg font-mono cursor-pointer mr-2 shadow-sm"
+                  title="Rapor başlığını yeniden adlandır"
+                >
+                  ✏️ yeniden adlandır
+                </button>
                 <button
                   @click="exportReportToPdf(viewingReport.title, viewingReport.content || viewingReport.title)"
                   class="text-xs bg-[#10b981] hover:bg-[#059669] text-white px-3 py-1.5 rounded-lg font-mono cursor-pointer transition-colors shadow-sm flex items-center gap-1.5 mr-2"
