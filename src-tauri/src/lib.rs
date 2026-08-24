@@ -4,6 +4,9 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchResponse {
     pub success: bool,
@@ -14,6 +17,16 @@ pub struct SearchResponse {
 
 // Projenin yerel geliştirme disk kök dizini (Mac geliştirme ortamı)
 const DEV_PROJECT_DIR: &str = "/Volumes/Mac Harici Disk/VibeProject/Agent-Reach";
+
+#[allow(unused_mut)]
+fn create_silent_command(program: &str) -> Command {
+    let mut cmd = Command::new(program);
+    #[cfg(target_os = "windows")]
+    {
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW: Windows'ta konsol penceresinin açılmasını engeller
+    }
+    cmd
+}
 
 fn resolve_project_root(app: &tauri::AppHandle) -> PathBuf {
     // 1. Geliştirme ortamı yolu kontrolü (Mac hard drive)
@@ -74,21 +87,21 @@ fn resolve_python_bin(root: &Path) -> String {
 fn open_external_url(url: String) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {
-        Command::new("open")
+        create_silent_command("open")
             .arg(&url)
             .spawn()
             .map_err(|e| format!("URL açılamadı: {}", e))?;
     }
     #[cfg(target_os = "windows")]
     {
-        Command::new("cmd")
+        create_silent_command("cmd")
             .args(["/C", "start", &url])
             .spawn()
             .map_err(|e| format!("URL açılamadı: {}", e))?;
     }
     #[cfg(target_os = "linux")]
     {
-        Command::new("xdg-open")
+        create_silent_command("xdg-open")
             .arg(&url)
             .spawn()
             .map_err(|e| format!("URL açılamadı: {}", e))?;
@@ -101,7 +114,7 @@ fn run_doctor(app: tauri::AppHandle) -> Result<String, String> {
     let root = resolve_project_root(&app);
     let python_bin = resolve_python_bin(&root);
 
-    let mut cmd = Command::new(&python_bin);
+    let mut cmd = create_silent_command(&python_bin);
     cmd.arg("-m")
        .arg("agent_reach.cli")
        .arg("doctor")
@@ -150,7 +163,7 @@ fn execute_search(app: tauri::AppHandle, platform: String, query: String, limit:
     #[cfg(not(target_os = "windows"))]
     let full_path = format!("{}:{}/.nvm/versions/node/v20.19.5/bin:{}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin", sys_path, home, home);
 
-    let mut cmd = Command::new(&python_bin);
+    let mut cmd = create_silent_command(&python_bin);
     cmd.arg(&script_path)
        .arg(&query)
        .arg(lim.to_string())
@@ -191,7 +204,7 @@ fn execute_search(app: tauri::AppHandle, platform: String, query: String, limit:
 #[tauri::command]
 fn fetch_url_content(url: String) -> Result<String, String> {
     let target = format!("https://r.jina.ai/{}", url);
-    let client_res = Command::new("curl")
+    let client_res = create_silent_command("curl")
         .arg("-s")
         .arg(&target)
         .output()
@@ -226,7 +239,7 @@ fn save_cookies(app: tauri::AppHandle, service: String, cookie_val: String) -> R
     let root = resolve_project_root(&app);
     let python_bin = resolve_python_bin(&root);
 
-    let mut cmd = Command::new(&python_bin);
+    let mut cmd = create_silent_command(&python_bin);
     cmd.arg("-m")
        .arg("agent_reach.cli")
        .arg("configure")
@@ -281,7 +294,7 @@ fn call_gemini_with_fallback(prompt: &str, api_key: &str, primary_model: &str) -
             api_key
         );
 
-        let client_res = Command::new("curl")
+        let client_res = create_silent_command("curl")
             .arg("-s")
             .arg("-X")
             .arg("POST")
@@ -339,7 +352,7 @@ fn fetch_gemini_models(api_key: Option<String>) -> Result<String, String> {
     };
 
     let url = format!("https://generativelanguage.googleapis.com/v1beta/models?key={}", key);
-    let client_res = Command::new("curl")
+    let client_res = create_silent_command("curl")
         .arg("-s")
         .arg(url)
         .output()
@@ -375,7 +388,7 @@ fn extract_browser_cookies(app: tauri::AppHandle, browser: String) -> Result<Str
         browser.to_lowercase()
     );
 
-    let mut cmd = Command::new(&python_bin);
+    let mut cmd = create_silent_command(&python_bin);
     cmd.arg("-c")
        .arg(&code)
        .current_dir(&root)
@@ -446,7 +459,7 @@ fn save_file_to_downloads(filename: String, base64_data: String) -> Result<Strin
 fn show_in_folder(path: String) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {
-        Command::new("open")
+        create_silent_command("open")
             .arg("-R")
             .arg(&path)
             .spawn()
@@ -454,14 +467,14 @@ fn show_in_folder(path: String) -> Result<(), String> {
     }
     #[cfg(target_os = "windows")]
     {
-        Command::new("explorer")
+        create_silent_command("explorer")
             .arg(format!("/select,{}", path))
             .spawn()
             .map_err(|e| format!("Klasör açılamadı: {}", e))?;
     }
     #[cfg(target_os = "linux")]
     {
-        Command::new("xdg-open")
+        create_silent_command("xdg-open")
             .arg(&path)
             .spawn()
             .map_err(|e| format!("Klasör açılamadı: {}", e))?;
